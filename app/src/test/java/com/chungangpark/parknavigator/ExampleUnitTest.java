@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.chungangpark.parknavigator;
 
 import org.junit.Test;
 
