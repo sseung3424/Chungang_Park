@@ -2,29 +2,8 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-<<<<<<< HEAD
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-09-21T06:41:56.845932800Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="Default" identifier="serial=10.210.42.58:40601;connection=409e5d56" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection>
-          <targets>
-            <Target type="DEFAULT_BOOT">
-              <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\User\.android\avd\New_Device_API_34.avd" />
-              </handle>
-            </Target>
-          </targets>
-        </DialogSelection>
-=======
-      <SelectionState runConfigName="com.chungangpark.parknavigator">
-        <option name="selectionMode" value="DROPDOWN" />
->>>>>>> 65d03f42731047b70d58507cfd9a076aa9f4f50b
       </SelectionState>
     </selectionStates>
   </component>
