@@ -68,6 +68,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // 진동 신호 전송 함수 추가
+        try {
+            if (outputStream != null) {
+                outputStream.write("V".getBytes()); // 진동 신호 전송
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -137,6 +145,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return true; // 모든 점자블록 경계 밖에 있으면 true 반환
     }
 
+
+    // 진동 신호 반복 전송 함수 추가
+    private void sendRepeatedVibrationSignal(int times) {
+        new Thread(() -> {
+            for (int i = 0; i < times; i++) {
+                sendVibrationSignal(); // 진동 신호 전송
+                try {
+                    Thread.sleep(500); // 0.5초 대기
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    // 점형 점자블록 위에 사용자가 있는지 확인하는 함수 추가
+    private boolean isUserOnDotBrailleBlock(LatLng userPosition) {
+        for (PolylineOverlay dotBlock : brailleBlocks) {
+            // 점형 점자블록인 경우에만 체크
+            if (dotBlock.getColor() == 0xFFFF00A5) { // 핑크색으로 식별
+                if (getDistanceFromPolyline(dotBlock, userPosition) <= dotBlock.getWidth() / 1000.0) {
+                    return true; // 사용자가 점형 점자블록 위에 있음
+                }
+            }
+        }
+        return false; // 사용자가 점형 점자블록 위에 없음
+    }
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         // 네이버 지도 객체 가져오기
@@ -176,6 +211,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (isUserOutsideBrailleBlocks(userPosition)) {
                 sendVibrationSignal(); // 진동 신호 전송
             }
+            if (isUserOnDotBrailleBlock(userPosition)) {
+                sendRepeatedVibrationSignal(5); // 진동 신호 5번 반복 전송
+            }
         });
     }
 
@@ -195,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void addDotBrailleBlock(NaverMap naverMap, LatLng startPoint, LatLng endPoint) {
         PolylineOverlay polyline = new PolylineOverlay();
         polyline.setCoords(Arrays.asList(startPoint, endPoint));
+        polyline.setWidth(10); // 선의 두께 설정 (단위: 픽셀)
         polyline.setColor(0xFFFF00A5); // 핑크색 선
         polyline.setMap(naverMap);
     }
