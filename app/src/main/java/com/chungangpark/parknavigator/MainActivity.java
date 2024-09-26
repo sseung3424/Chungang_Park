@@ -10,12 +10,19 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
@@ -32,10 +39,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
     private Animator animator;
 
+    private Button selectParkButton;
+    private SeekBar seekBarBearing;
+    private TextView valueBearing;
+
+    // 한강 공원의 위치를 정의합니다.
+    private static final LatLng YEUIDO_PARK = new LatLng(37.5283169, 126.9328034); // 여의도 한강 공원 좌표
+    private static final LatLng BANPO_PARK = new LatLng(37.5088, 126.9920);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 한강 공원 목록 버튼 설정
+        selectParkButton = findViewById(R.id.select_park_button);
+        selectParkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showParkListDialog();
+            }
+        });
 
         // ActionBar 설정 (위치 추적 모드를 위한)
         ActionBar actionBar = getSupportActionBar();
@@ -56,6 +79,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 지도 초기화
         mapFragment.getMapAsync(this);
+        // 각도 조절 SeekBar 설정
+        seekBarBearing = findViewById(R.id.seek_bar_bearing);
+        valueBearing = findViewById(R.id.value_bearing);
+        seekBarBearing.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (naverMap != null) {
+                    // 지도 줌 레벨을 설정하는 코드
+                    double zoomLevel = (double) progress / 10; // 줌 레벨을 0.1 단위로 설정
+                    CameraUpdate cameraUpdate = CameraUpdate.zoomTo(zoomLevel);
+                    naverMap.moveCamera(cameraUpdate);
+
+                    valueBearing.setText(String.format("줌 레벨: %.1f", zoomLevel)); // 줌 레벨 표시
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
     @Override
@@ -65,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 지도 UI 설정 (줌 버튼)
         UiSettings uiSettings = naverMap.getUiSettings();
-        uiSettings.setZoomControlEnabled(true);
+        uiSettings.setZoomControlEnabled(false);
 
         // 위치 오버레이 설정
         LocationOverlay locationOverlay = naverMap.getLocationOverlay();
@@ -77,7 +124,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.Face);
     }
+    // 한강 공원 목록 다이얼로그 표시
+    private void showParkListDialog() {
+        final String[] parkList = {"여의도 한강 공원", "반포 한강 공원"};
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("한강 공원 선택")
+                .setItems(parkList, (dialog, which) -> {
+                    switch (which) {
+                        case 0: // 여의도 한강 공원 선택
+                            moveToPark(YEUIDO_PARK);
+                            break;
+                        case 1: // 반포 한강 공원 선택
+                            moveToPark(BANPO_PARK);
+                            break;
+                    }
+                })
+
+                .show();
+    }
+    // 선택한 공원으로 지도 이동
+    private void moveToPark(LatLng parkLocation) {
+        // 줌 레벨을 12로 설정하여 더 넓게 보기
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(parkLocation).zoomTo(15);
+        naverMap.moveCamera(cameraUpdate);
+
+        // 지도 반경을 약 1km로 확장
+        double latitude = parkLocation.latitude;
+        double longitude = parkLocation.longitude;
+
+        double radiusInDegrees = 0.009; // 반경 약 1km
+        LatLng southwest = new LatLng(latitude - radiusInDegrees, longitude - radiusInDegrees);
+        LatLng northeast = new LatLng(latitude + radiusInDegrees, longitude + radiusInDegrees);
+
+        // setExtent()을 사용하여 지도 경계 설정
+        naverMap.setExtent(new com.naver.maps.geometry.LatLngBounds(southwest, northeast));
+
+        Toast.makeText(this, "공원이동: " + parkLocation.latitude + ", " + parkLocation.longitude, Toast.LENGTH_SHORT).show();
+    }
     // 원 애니메이션
     private void animateCircle(@NonNull LocationOverlay locationOverlay) {
         if (animator != null) {
