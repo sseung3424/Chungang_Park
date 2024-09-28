@@ -34,6 +34,7 @@ import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
     private NaverMap naverMap;
@@ -52,6 +53,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 선택된 공원의 이름을 Intent로 전달받음
+        String parkName = getIntent().getStringExtra("park_name");
 
         // 한강 공원 목록 버튼 설정
         selectParkButton = findViewById(R.id.select_park_button);
@@ -100,7 +104,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 위치 추적 설정
         naverMap.setLocationSource(locationSource);
-        naverMap.setLocationTrackingMode(LocationTrackingMode.Face);
+        naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
+
+        // 선택한 공원으로 지도 이동
+        String parkName = getIntent().getStringExtra("park_name");
+        if (parkName != null) {
+            moveToSelectedPark(parkName);
+        }
     }
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {
@@ -124,6 +134,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 .show();
     }
+
+    // 공원의 이름에 따라 올바른 LatLng 좌표를 전달하는 메서드
+    private void moveToSelectedPark(String parkName) {
+        LatLng parkLocation = null;
+
+        switch (parkName) {
+            case "여의도":
+                parkLocation = YEUIDO_PARK;
+                break;
+            case "망원":
+                parkLocation = MANGWON_PARK;
+                break;
+            case "잠실":
+                parkLocation = JAMSIL_PARK;
+                break;
+            default:
+                Toast.makeText(this, "알 수 없는 공원 선택", Toast.LENGTH_SHORT).show();
+                return;
+        }
+
+        if (parkLocation != null) {
+            moveToPark(parkLocation);  // LatLng 좌표를 사용하여 공원으로 이동
+        }
+    }
+
     // 선택한 공원으로 지도 이동
     private void moveToPark(LatLng parkLocation) {
 
@@ -144,35 +179,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Toast.makeText(this, "공원이동: " + parkLocation.latitude + ", " + parkLocation.longitude, Toast.LENGTH_SHORT).show();
     }
-    // 원 애니메이션
-    private void animateCircle(@NonNull LocationOverlay locationOverlay) {
-        if (animator != null) {
-            animator.cancel();
-        }
 
-        AnimatorSet animatorSet = new AnimatorSet();
-
-        ObjectAnimator radiusAnimator = ObjectAnimator.ofInt(locationOverlay, "circleRadius",
-                0, getResources().getDimensionPixelSize(R.dimen.location_overlay_circle_raduis));
-        radiusAnimator.setRepeatCount(2);
-
-        ObjectAnimator colorAnimator = ObjectAnimator.ofInt(locationOverlay, "circleColor",
-                Color.argb(127, 148, 186, 250), Color.argb(0, 148, 186, 250));
-        colorAnimator.setEvaluator(new ArgbEvaluator());
-        colorAnimator.setRepeatCount(2);
-
-        animatorSet.setDuration(1000);
-        animatorSet.playTogether(radiusAnimator, colorAnimator);
-        animatorSet.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                locationOverlay.setCircleRadius(0);
-            }
-        });
-        animatorSet.start();
-
-        animator = animatorSet;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
