@@ -178,6 +178,99 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return false; // 사용자가 점형 점자블록 위에 없음
     }
+    // 아두이노로 진동 신호 전송 함수 (진동 센서 번호에 맞게)
+    private void sendVibrationSignal(int sensorNumber) {
+        try {
+            if (outputStream != null) {
+                // 진동 센서 번호에 따라 신호 전송
+                if (sensorNumber == 1) {
+                    outputStream.write("1".getBytes());  // 진동 센서 1 작동 신호 전송
+                } else if (sensorNumber == 2) {
+                    outputStream.write("2".getBytes());  // 진동 센서 2 작동 신호 전송
+                } else if (sensorNumber == 3) {
+                    outputStream.write("3".getBytes());  // 진동 센서 3 작동 신호 전송
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // 장애물 앞 진동 트리거 (진동 센서 번호에 따라)
+    private void triggerVibrationAtIntersection(LatLng userPosition) {
+        // 좌표와 진동 센서 번호를 매핑
+        List<VibrationTrigger> triggers = Arrays.asList(
+                new VibrationTrigger(new LatLng(37.52746540, 126.93278579), 2, 3),
+                new VibrationTrigger(new LatLng(37.52749844, 126.93282825), 1, 2),
+                new VibrationTrigger(new LatLng(37.52746078, 126.93283010), 1, 3),
+                new VibrationTrigger(new LatLng(37.52719621, 126.93243238), 1, 3),
+                new VibrationTrigger(new LatLng(37.52713827, 126.93239991), 2, 3),
+                new VibrationTrigger(new LatLng(37.52677942, 126.93364775), 2, 3),
+                new VibrationTrigger(new LatLng(37.52674941, 126.93364060), 1, 3),
+                new VibrationTrigger(new LatLng(37.52673475, 126.93369419), 1, 2),
+                new VibrationTrigger(new LatLng(37.52674941, 126.93364060), 1, 3),
+                new VibrationTrigger(new LatLng(37.52656957, 126.93325711), 2, 3),
+                new VibrationTrigger(new LatLng(37.52657473, 126.93330811), 1, 3),
+                new VibrationTrigger(new LatLng(37.52659294, 126.93330747), 1, 2),
+                new VibrationTrigger(new LatLng(37.52656118, 126.93323845), 1, 3),
+                new VibrationTrigger(new LatLng(37.52655245, 126.93318723), 1, 2),
+                new VibrationTrigger(new LatLng(37.52653469, 126.93323310), 2, 3),
+                new VibrationTrigger(new LatLng(37.52645537, 126.93398751), 1, 2, 3),
+                new VibrationTrigger(new LatLng(37.52644432, 126.93393378), 1, 2, 3),
+                new VibrationTrigger(new LatLng(37.52640692, 126.93398781), 1, 2, 3),
+                new VibrationTrigger(new LatLng(37.52623683, 126.93361226), 1, 2),
+                new VibrationTrigger(new LatLng(37.52623836, 126.93364102), 1, 3),
+                new VibrationTrigger(new LatLng(37.52621122, 126.93364469), 2, 3),
+                new VibrationTrigger(new LatLng(37.52607395, 126.93426738), 2, 3),
+                new VibrationTrigger(new LatLng(37.52604918, 126.93425169), 1, 3),
+                new VibrationTrigger(new LatLng(37.52601184, 126.93394634), 1, 3),
+                new VibrationTrigger(new LatLng(37.52601374, 126.93390651), 1, 2)
+        );
+
+        // 좌표가 설정된 위치에 도달했는지 확인하여 진동 작동
+        for (VibrationTrigger trigger : triggers) {
+            if (distance(userPosition, trigger.getPosition()) <= 0.005) {
+                sendVibrationSignal(trigger.getSensor1());
+                sendVibrationSignal(trigger.getSensor2());
+            }
+        }
+    }
+    // VibrationTrigger 클래스 추가 (좌표와 진동 센서를 매핑하기 위한 헬퍼 클래스)
+    class VibrationTrigger {
+        private LatLng position;
+        private int sensor1;
+        private int sensor2;
+        private int sensor3;
+
+        public VibrationTrigger(LatLng position, int sensor1, int sensor2) {
+            this.position = position;
+            this.sensor1 = sensor1;
+            this.sensor2 = sensor2;
+        }
+
+        public VibrationTrigger(LatLng position, int sensor1, int sensor2, int sensor3) {
+            this.position = position;
+            this.sensor1 = sensor1;
+            this.sensor2 = sensor2;
+            this.sensor3 = sensor3;
+        }
+
+        public LatLng getPosition() {
+            return position;
+        }
+
+        public int getSensor1() {
+            return sensor1;
+        }
+
+        public int getSensor2() {
+            return sensor2;
+        }
+
+        public int getSensor3() {
+            return sensor3;
+        }
+    }
+
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         // 네이버 지도 객체 가져오기
@@ -222,6 +315,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         addDotBrailleBlock(naverMap, new LatLng(37.52746540, 126.93278579), new LatLng(37.52748075, 126.93280613));
         addDotBrailleBlock(naverMap, new LatLng(37.52746078, 126.93283010), new LatLng(37.52748075, 126.93280613));
         addDotBrailleBlock(naverMap, new LatLng(37.52749844, 126.93282825), new LatLng(37.52748075, 126.93280613));
+        // 선형 점자블록에서 점형 점자블록으로 바뀌는 구간에서만 작동하도록
+        // 37.52746540, 126.93278579 2번 3번
+        // 37.52749844, 126.93282825 1번 2번
+        // 37.52746078, 126.93283010 1번 3번
+        // 37.52719621, 126.93243238 1번 3번
+        // 37.52713827, 126.93239991 2번 3번
+        // 37.52677942, 126.93364775 2번 3번
+        // 37.52674941, 126.93364060 1번 3번
+        // 37.52673475, 126.93369419 1번 2번
+        // 37.52674941, 126.93364060 1번 3번
+        // 37.52656957, 126.93325711 2번 3번
+        // 37.52657473, 126.93330811 1번 3번
+        // 37.52659294, 126.93330747 1번 2번
+        // 37.52656118, 126.93323845 1번 3번
+        // 37.52655245, 126.93318723 1번 2번
+        // 37.52653469, 126.93323310 2번 3번
+        // 37.52645537, 126.93398751 1번 2번 3번
+        // 37.52644432, 126.93393378 1번 2번 3번
+        // 37.52640692, 126.93398781 1번 2번 3번
+        // 37.52645537, 126.93398751 1번 2번 3번
+        // 37.52623683, 126.93361226 1번 2번
+        // 37.52623836, 126.93364102 1번 3번
+        // 37.52621122, 126.93364469 2번 3번
+        //37.52607395, 126.93426738 2번 3번
+        // 37.52604918, 126.93425169 1번 3번
+        // 37.52601184, 126.93394634 1번 3번
+        // 37.52601374, 126.93390651 1번 2번
         addDotBrailleBlock(naverMap, new LatLng(37.5666102, 126.9783881), new LatLng(37.5668202, 126.9786881));
         addDotBrailleBlock(naverMap, new LatLng(37.52754974, 126.93289687), new LatLng(37.52753334, 126.93287541));
 
@@ -232,10 +352,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         addDotBrailleBlock(naverMap, new LatLng(37.52656957, 126.93325711), new LatLng( 37.52657932, 126.93327844));
         addDotBrailleBlock(naverMap, new LatLng(37.52659294, 126.93330747), new LatLng( 37.52657932, 126.93327844));
         addDotBrailleBlock(naverMap, new LatLng(37.52657473, 126.93330811), new LatLng( 37.52657932, 126.93327844));
-        addDotBrailleBlock(naverMap, new LatLng(37.52657473, 126.93330811), new LatLng( 37.52657932, 126.93327844));
 
 
         addDotBrailleBlock(naverMap, new LatLng(37.52656118, 126.93323845), new LatLng( 37.52654361, 126.93320511));
+        addDotBrailleBlock(naverMap, new LatLng(37.52655245, 126.93318723), new LatLng( 37.52654361, 126.93320511));
+        addDotBrailleBlock(naverMap, new LatLng(37.52653469, 126.93323310), new LatLng( 37.52654361, 126.93320511));
 
         addDotBrailleBlock(naverMap, new LatLng(37.52719621, 126.93243238), new LatLng( 37.52715291, 126.93237505));
         addDotBrailleBlock(naverMap, new LatLng(37.52713827, 126.93239991), new LatLng( 37.52715291, 126.93237505));
@@ -244,10 +365,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         addDotBrailleBlock(naverMap, new LatLng(37.52644432, 126.93393378), new LatLng( 37.52643553, 126.93396365));
         addDotBrailleBlock(naverMap, new LatLng(37.52640692, 126.93398781), new LatLng( 37.52643553, 126.93396365));
         addDotBrailleBlock(naverMap, new LatLng(37.52645537, 126.93398751), new LatLng( 37.52643553, 126.93396365));
+
         addDotBrailleBlock(naverMap, new LatLng(37.52678618, 126.93435865), new LatLng( 37.52680387, 126.93437803));
 
-        addDotBrailleBlock(naverMap, new LatLng(37.52655245, 126.93318723), new LatLng( 37.52654361, 126.93320511));
-        addDotBrailleBlock(naverMap, new LatLng(37.52653469, 126.93323310), new LatLng( 37.52654361, 126.93320511));
 
 
         addDotBrailleBlock(naverMap, new LatLng(37.52623683, 126.93361226), new LatLng( 37.52622713, 126.93362838));
@@ -269,6 +389,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 화장실 위치
         // 37.52623836, 126.93364102
+
+        // 교차로 위치
+        // 37.52748075, 126.93280613
+        // 37.52676205, 126.93366983
+        // 37.52657932, 126.93327844
+        // 37.52715291, 126.93237505
+        // 37.52643553, 126.93396365
+        // 37.52654361, 126.93320511
+        // 37.52622713, 126.93362838
+        // 37.52599541, 126.93392535
+        // 37.52604725, 126.93428587
+
         // 위치 변경 리스너 추가
         naverMap.addOnLocationChangeListener(location -> {
             LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
@@ -283,6 +415,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // 장애물 앞 진동 트리거
             triggerObstacleVibration(userPosition, obstaclePosition1); // 장애물 1에 대한 진동
             triggerObstacleVibration(userPosition, obstaclePosition2); // 장애물 2에 대한 진동
+            // 진동 작동 트리거
+            triggerVibrationAtIntersection(userPosition);
         });
     }
 
@@ -351,3 +485,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 }
 /////////////////////////////////////////////////////////////////////////////
+
