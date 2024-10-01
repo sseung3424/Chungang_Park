@@ -2,15 +2,45 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map_fragment"
+    <!-- 위치 추적 모드 선택 옵션 -->
+    <HorizontalScrollView
+        android:id="@+id/options"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.naver.maps.map.MapFragment" />
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <Button
+        android:id="@+id/select_park_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="한강 공원 목록"
+        app:layout_constraintTop_toBottomOf="@id/options"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"/>
+    <!-- 지도 프래그먼트를 위한 영역 -->
+    <FrameLayout
+        android:id="@+id/map_fragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/select_park_button"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
