@@ -29,6 +29,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ArduinoVibrationController"
+            android:exported="true"/>
+        <activity android:name=".BluetoothArduinoConnector"
+            android:exported="true"/>
+        <activity android:name=".BrailleBlockDetector"
+            android:exported="true"/>
+        <activity android:name=".NavigationManager"
+            android:exported="true"/>
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="kvuo475ub1" />
