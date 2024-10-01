@@ -28,6 +28,12 @@ import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.NaverMapOptions;
 import com.naver.maps.map.UiSettings;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.graphics.Color;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -293,4 +299,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         polyline.setColor(0xFFFF00A5); // 핑크색 선
         polyline.setMap(naverMap);
     }
+    // 특정 좌표를 기준으로 가장 가까운 점자블록 좌표를 반환하는 함수
+    private LatLng getNearestBrailleBlock(LatLng position) {
+        LatLng nearestPoint = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (PolylineOverlay block : brailleBlocks) {
+            List<LatLng> coords = block.getCoords();
+            for (LatLng coord : coords) {
+                double distance = distance(position, coord);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestPoint = coord;
+                }
+            }
+        }
+        return nearestPoint;
+    }
+
+    // 시작점에서 화장실 위치까지 경로를 찾는 함수 (단순히 가장 가까운 점자블록들로 이어지는 경로를 계산)
+    private List<LatLng> findPathToToilet(LatLng start, LatLng end) {
+        List<LatLng> path = new ArrayList<>();
+        LatLng current = start;
+
+        while (distance(current, end) > 0.0001) { // 임의의 오차 범위 설정
+            current = getNearestBrailleBlock(current);
+            path.add(current);
+            if (current.equals(end)) {
+                break;
+            }
+        }
+        path.add(end);
+        return path;
+    }
 }
+/////////////////////////////////////////////////////////////////////////////
