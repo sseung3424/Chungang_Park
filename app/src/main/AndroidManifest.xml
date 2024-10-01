@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
@@ -35,6 +36,12 @@
         <activity android:name=".BrailleBlockDetector"
             android:exported="false" />
         <activity android:name=".NavigationManager"
+            android:exported="false" />
+        <activity android:name=".BluetoothController"
+            android:exported="false" />
+        <activity android:name=".ConnectedThread"
+            android:exported="false" />
+        <activity android:name=".ConnectThread"
             android:exported="false" />
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"

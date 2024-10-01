@@ -5,6 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- 아두이노 연결로 이동하는 버튼 -->
+    <Button
+        android:id="@+id/connect_arduino_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connect Arduino"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp" />
+
     <!-- 위치 추적 모드 선택 옵션 -->
     <HorizontalScrollView
         android:id="@+id/options"
