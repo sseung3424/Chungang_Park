@@ -76,15 +76,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
     private Animator animator;
 
-    private Button selectParkButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // 한강 공원 목록 버튼 설정
-        selectParkButton = findViewById(R.id.select_park_button);
+        Button selectParkButton = findViewById(R.id.select_park_button);
         selectParkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,27 +136,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
 
-
-        // 위치 추적 모드를 None으로 설정 (원하는 경우 Follow로 변경 가능)
-        naverMap.setLocationSource(locationSource);
-        naverMap.setLocationTrackingMode(LocationTrackingMode.Face);
-
-        // 위치를 받아와 내 위치로 지도 이동
-        Location location = locationSource.getLastLocation();
-        if (location != null) {
-            LatLng currentLocation = new LatLng(((Location) location).getLatitude(), location.getLongitude());
-            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(currentLocation).zoomTo(15);
-            naverMap.moveCamera(cameraUpdate);
-        } else {
-            Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
-        }
-
-
         // 선택한 공원으로 지도 이동
         String parkName = getIntent().getStringExtra("park_name");
         if (parkName != null) {
             moveToSelectedPark(parkName);
         }
+
+        // 점자 블록 매니저 생성 및 점자 블록 추가
+        BrailleBlockManager brailleBlockManager = new BrailleBlockManager();
+        brailleBlockManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
     }
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {
@@ -227,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Toast.makeText(this, "공원이동: " + parkLocation.latitude + ", " + parkLocation.longitude, Toast.LENGTH_SHORT).show();
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
