@@ -263,6 +263,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 37.52754974, 126.93289687
         // 37.52680387, 126.93437803
 
+        // 장애물 좌표 설정 (예시 좌표 추가)
+        LatLng obstaclePosition1 = new LatLng(37.52754974, 126.93289687); // 장애물 1
+        LatLng obstaclePosition2 = new LatLng(37.52680387, 126.93437803); // 장애물 2
+
         // 화장실 위치
         // 37.52623836, 126.93364102
         // 위치 변경 리스너 추가
@@ -276,6 +280,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (isUserOnDotBrailleBlock(userPosition)) {
                 sendRepeatedVibrationSignal(5); // 진동 신호 5번 반복 전송
             }
+            // 장애물 앞 진동 트리거
+            triggerObstacleVibration(userPosition, obstaclePosition1); // 장애물 1에 대한 진동
+            triggerObstacleVibration(userPosition, obstaclePosition2); // 장애물 2에 대한 진동
         });
     }
 
@@ -299,6 +306,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         polyline.setColor(0xFFFF00A5); // 핑크색 선
         polyline.setMap(naverMap);
     }
+    // 장애물 앞 진동 함수 추가
+    private void triggerObstacleVibration(LatLng userPosition, LatLng obstaclePosition) {
+        double distance = distance(userPosition, obstaclePosition);
+
+        // 장애물과의 거리가 5미터 이내일 때 진동 5번 울림
+        if (distance <= 0.005) {
+            sendRepeatedVibrationSignal(5); // 진동 신호 5번 반복 전송
+        }
+    }
+
     // 특정 좌표를 기준으로 가장 가까운 점자블록 좌표를 반환하는 함수
     private LatLng getNearestBrailleBlock(LatLng position) {
         LatLng nearestPoint = null;
