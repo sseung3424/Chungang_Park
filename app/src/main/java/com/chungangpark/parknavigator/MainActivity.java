@@ -11,6 +11,7 @@ import com.naver.maps.geometry.LatLng;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.location.Location;
 import android.widget.Toast; // Toast 추가
 import java.io.OutputStream;
 import java.io.IOException;
@@ -66,22 +67,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
 
+    // 한강 공원의 위치를 정의합니다.
+    private static final LatLng YEUIDO_PARK = new LatLng(37.5283169, 126.9328034); // 여의도 한강 공원 좌표
+    private static final LatLng MANGWON_PARK = new LatLng(37.5580, 126.9027);
+    private static final LatLng JAMSIL_PARK = new LatLng(37.5100, 127.1000); // 잠실 한강 공원 좌표
+
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private Animator animator;
 
+    private Button selectParkButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SelectParkActivity spa = new SelectParkActivity();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 선택된 공원의 이름을 Intent로 전달받음
-        String parkName = getIntent().getStringExtra("park_name");
-
         // 한강 공원 목록 버튼 설정
-        Button selectParkButton = findViewById(R.id.select_park_button);
-        selectParkButton.setOnClickListener(v -> spa.showParkListDialog());
+        selectParkButton = findViewById(R.id.select_park_button);
+        selectParkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showParkListDialog();
+            }
+        });
 
         // ActionBar 설정 (위치 추적 모드를 위한)
         ActionBar actionBar = getSupportActionBar();
@@ -112,9 +121,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
-        SelectParkActivity spa = new SelectParkActivity();
-        ArduinoVibrationController avc = new ArduinoVibrationController();
-        BrailleBlockDetector bbd = new BrailleBlockDetector();
         // 네이버 지도 객체 설정
         this.naverMap = naverMap;
 
@@ -132,21 +138,102 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
 
+
         // 위치 추적 모드를 None으로 설정 (원하는 경우 Follow로 변경 가능)
-        naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+        naverMap.setLocationSource(locationSource);
+        naverMap.setLocationTrackingMode(LocationTrackingMode.Face);
+
+        // 위치를 받아와 내 위치로 지도 이동
+        Location location = locationSource.getLastLocation();
+        if (location != null) {
+            LatLng currentLocation = new LatLng(((Location) location).getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(currentLocation).zoomTo(15);
+            naverMap.moveCamera(cameraUpdate);
+        } else {
+            Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
+        }
+
 
         // 선택한 공원으로 지도 이동
         String parkName = getIntent().getStringExtra("park_name");
         if (parkName != null) {
-            spa.moveToSelectedPark(parkName);
+            moveToSelectedPark(parkName);
         }
     }
+    // 한강 공원 목록 다이얼로그 표시
+    private void showParkListDialog() {
+        final String[] parkList = {"여의도 한강 공원", "망원 한강 공원","잠실 한강 공원"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("한강 공원 선택")
+                .setItems(parkList, (dialog, which) -> {
+                    switch (which) {
+                        case 0: // 여의도 한강 공원 선택
+                            moveToPark(YEUIDO_PARK);
+                            break;
+                        case 1: // 망원 한강 공원 선택
+                            moveToPark(MANGWON_PARK);
+                            break;
+                        case 2: // 망원 한강 공원 선택
+                            moveToPark(JAMSIL_PARK);
+                            break;
+                    }
+                })
+
+                .show();
+    }
+
+    // 공원의 이름에 따라 올바른 LatLng 좌표를 전달하는 메서드
+    private void moveToSelectedPark(String parkName) {
+        LatLng parkLocation = null;
+
+        switch (parkName) {
+            case "여의도":
+                parkLocation = YEUIDO_PARK;
+                break;
+            case "망원":
+                parkLocation = MANGWON_PARK;
+                break;
+            case "잠실":
+                parkLocation = JAMSIL_PARK;
+                break;
+            default:
+                Toast.makeText(this, "알 수 없는 공원 선택", Toast.LENGTH_SHORT).show();
+                return;
+        }
+
+        if (parkLocation != null) {
+            moveToPark(parkLocation);  // LatLng 좌표를 사용하여 공원으로 이동
+        }
+    }
+
+    // 선택한 공원으로 지도 이동
+    private void moveToPark(LatLng parkLocation) {
+
+        // 줌 레벨을 12로 설정하여 더 넓게 보기
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(parkLocation).zoomTo(15);
+        naverMap.moveCamera(cameraUpdate);
+
+        // 지도 반경을 약 1km로 확장
+        double latitude = parkLocation.latitude;
+        double longitude = parkLocation.longitude;
+
+        double radiusInDegrees = 0.009; // 반경 약 1km
+        LatLng southwest = new LatLng(latitude - radiusInDegrees, longitude - radiusInDegrees);
+        LatLng northeast = new LatLng(latitude + radiusInDegrees, longitude + radiusInDegrees);
+
+        // setExtent()을 사용하여 지도 경계 설정
+        naverMap.setExtent(new com.naver.maps.geometry.LatLngBounds(southwest, northeast));
+
+        Toast.makeText(this, "공원이동: " + parkLocation.latitude + ", " + parkLocation.longitude, Toast.LENGTH_SHORT).show();
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (locationSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             if (!locationSource.isActivated()) {
-                naverMap.setLocationTrackingMode(LocationTrackingMode.None);
+                naverMap.setLocationTrackingMode(LocationTrackingMode.Face);
             }
             return;
         }

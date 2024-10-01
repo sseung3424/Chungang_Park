@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <!--아래 4줄은 안드로이드 앱에서 블루투스 권한 및 설정을 하는 코드-->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -30,13 +29,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".ArduinoVibrationController"
-            android:exported="true"/>
+            android:exported="false" />
         <activity android:name=".BluetoothArduinoConnector"
-            android:exported="true"/>
+            android:exported="false" />
         <activity android:name=".BrailleBlockDetector"
-            android:exported="true"/>
+            android:exported="false" />
         <activity android:name=".NavigationManager"
-            android:exported="true"/>
+            android:exported="false" />
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="kvuo475ub1" />
