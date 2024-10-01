@@ -553,11 +553,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         path.add(end);
         return path;
-        // 선택한 공원으로 지도 이동
-        String parkName = getIntent().getStringExtra("park_name");
-        if (parkName != null) {
-            moveToSelectedPark(parkName);
-        }
+
     }
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {
