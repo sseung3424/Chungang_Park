@@ -60,7 +60,7 @@
         android:id="@+id/seachDevices"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
+        android:layout_marginStart="104dp"
         android:layout_marginTop="52dp"
         android:text="연결된 블루투스 기기 찾기"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,6 +86,17 @@
         android:layout_marginStart="160dp"
         android:layout_marginTop="624dp"
         android:text="Clear"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="400dp"
+        android:layout_marginTop="50dp"
+        android:text="뒤로가기"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints" />
