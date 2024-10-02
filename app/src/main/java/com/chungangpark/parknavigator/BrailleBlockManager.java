@@ -1,16 +1,19 @@
 package com.chungangpark.parknavigator;
-
-import static com.chungangpark.parknavigator.MainActivity.brailleBlocks;
-
 import androidx.annotation.NonNull;
-
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.overlay.PolylineOverlay;
-
 import java.util.Arrays;
 
+import android.content.Context;
+import android.widget.Toast;
+
 public class BrailleBlockManager {
+    private Context context;
+
+    public BrailleBlockManager(Context context) {
+        this.context = context;
+    }
     // 선형 점자블록 추가 함수
     private void addLinearBrailleBlock(NaverMap naverMap, LatLng startPoint, LatLng endPoint) {
         PolylineOverlay polyline = new PolylineOverlay();
@@ -20,7 +23,7 @@ public class BrailleBlockManager {
         polyline.setMap(naverMap);
 
         // 점자블록 리스트에 추가
-        brailleBlocks.add(polyline);
+        MainActivity.brailleBlocks.add(polyline);
     }
 
     // 점형 점자블록 추가 함수
@@ -31,6 +34,7 @@ public class BrailleBlockManager {
         polyline.setColor(0xFFFF00A5); // 핑크색 선
         polyline.setMap(naverMap);
     }
+
     public void addBrailleBlockonMap(@NonNull NaverMap naverMap) {
         BrailleBlockDetector bbd = new BrailleBlockDetector();
         ArduinoVibrationController avc = new ArduinoVibrationController();
@@ -104,6 +108,11 @@ public class BrailleBlockManager {
         addDotBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52604725, 126.93428587));
         addDotBrailleBlock(naverMap, new LatLng(37.52607395, 126.93426738), new LatLng(37.52604725, 126.93428587));
 
+        // 테스트 좌표 ///////////////////////////////////////////
+        addLinearBrailleBlock(naverMap, new LatLng(37.52064917, 127.09412791), new LatLng(37.52070961, 127.09409197));
+        addDotBrailleBlock(naverMap, new LatLng(37.52070670, 127.09406298), new LatLng(37.52070961, 127.09409197));
+
+        ////////////////////////////////////////////////////////
         // 장애물 좌표
         // 37.52754974, 126.93289687
         // 37.52680387, 126.93437803
@@ -117,9 +126,14 @@ public class BrailleBlockManager {
             // 점자블록 경계를 벗어났는지 확인
             if (bbd.isUserOutsideBrailleBlocks(userPosition)) {
                 avc.sendVibrationSignal(); // 진동 신호 전송
+                Toast.makeText(context, "선형 점자블록을 벗어났습니다", Toast.LENGTH_SHORT).show();
+
             }
             if (bbd.isUserOnDotBrailleBlock(userPosition)) {
+
                 avc.sendRepeatedVibrationSignal(5); // 진동 신호 5번 반복 전송
+                Toast.makeText(context, "진동이 울립니다", Toast.LENGTH_SHORT).show();
+
             }
 
         });

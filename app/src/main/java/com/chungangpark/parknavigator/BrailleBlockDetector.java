@@ -14,7 +14,9 @@ public class BrailleBlockDetector {
     public boolean isUserOutsideBrailleBlocks(LatLng userPosition) {
         for (PolylineOverlay block : brailleBlocks) {
             if (nm.getDistanceFromPolyline(block, userPosition) <= block.getWidth() / 1000.0) {
-                return false; // 점자블록 내에 있으면 false 반환
+                return false; //
+
+                // 점자블록 내에 있으면 false 반환
             }
         }
         return true; // 모든 점자블록 경계 밖에 있으면 true 반환
