@@ -52,4 +52,15 @@ public class BrailleBlockDetector {
         }
         return nearestPoint;
     }
+    // 두 지점 간의 거리 계산 함수 (LatLng 좌표 사용)
+    public double distance(LatLng p1, LatLng p2) {
+        double latDiff = Math.toRadians(p1.latitude - p2.latitude);
+        double lngDiff = Math.toRadians(p1.longitude - p2.longitude);
+        double a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2) +
+                Math.cos(Math.toRadians(p1.latitude)) * Math.cos(Math.toRadians(p2.latitude)) *
+                        Math.sin(lngDiff / 2) * Math.sin(lngDiff / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double earthRadius = 6371000; // 지구 반지름 (미터 단위)
+        return earthRadius * c;
+    }
 }
