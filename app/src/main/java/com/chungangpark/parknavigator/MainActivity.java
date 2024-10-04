@@ -76,6 +76,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
     private Animator animator;
 
+    // 네이버 API 키
+    private String apiKeyId = "kvuo475ub1";
+    private String apiKeySecret = "a9svDttBV8f4zj7iD2XnXVnMejFW4Cn64E14dpLM";
+
+
+    // 임의로 설정된 출발지와 도착지 (예시로 한강 공원 좌표 사용)
+    private LatLng startLatLng = new LatLng(37.5283169, 126.9328034); // 여의도 공원 좌표
+    private LatLng endLatLng = new LatLng(37.5100, 127.1000);         // 잠실 공원 좌표
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,6 +118,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 지도 초기화
         mapFragment.getMapAsync(this);
+
+        // 지도 초기화
+        mapFragment.getMapAsync(this);
+
+        // 길찾기 버튼 설정
+        Button findPathButton = findViewById(R.id.find_path_button);
+        findPathButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 경로 탐색 시작
+                PathFinder pathFinder = new PathFinder(MainActivity.this, naverMap, apiKeyId, apiKeySecret);
+                pathFinder.findPath(startLatLng, endLatLng);
+            }
+        });
 
         /*// 블루투스 설정 함수 호출
         setupBluetooth();*/
