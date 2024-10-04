@@ -12,6 +12,10 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 import com.naver.maps.map.overlay.CircleOverlay;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import java.util.UUID;
 
 public class BrailleBlockManager {
     private boolean wasNearObstacle = false;
@@ -32,6 +36,9 @@ public class BrailleBlockManager {
     public BrailleBlockManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
+        // 앱이 실행되면 바로 명령어 7번을 아두이노로 전송
+        sendTestCommandToArduino();
+
         // case 1
         coordinateCases.put(new LatLng(37.52749844, 126.93282825), 1);
         coordinateCases.put(new LatLng(37.52673475, 126.93369419), 1);
@@ -250,6 +257,23 @@ public class BrailleBlockManager {
             }
         }
     }
+    // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
+    public void sendTestCommandToArduino() {
+        try {
+            if (outputStream != null) {
+                outputStream.write(("7\n").getBytes());  // 명령어 7을 아두이노로 전송
+                outputStream.flush();
+                Toast.makeText(context, "Command 7 sent to Arduino", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
+            } else {
+                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
+        }
+    }
+
+
     // case 번호에 따른 동작 처리 함수 // 아두이노로 case 번호 전송
     private void handleCase(int caseNumber) {
         try {
