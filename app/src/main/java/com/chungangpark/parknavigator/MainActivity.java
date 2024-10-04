@@ -83,9 +83,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // toilet_list
         List<LatLng> toilet = Arrays.asList(
                 // 아래는 예시 위치 -> 화장실 좌표 추가해야함!!!!!
-                new LatLng(37.51925551, 126.94159282), // 서울시청
-                new LatLng(37.52172615, 126.94154885),   // 경복궁
-                new LatLng(37.52332775, 126.93968532),    // 남산타워
+                new LatLng(37.51925551, 126.94159282),
+                new LatLng(37.52172615, 126.94154885),
+                new LatLng(37.52332775, 126.93968532),
                 new LatLng(37.52495857, 126.93753876),
                 new LatLng(37.52509346, 126.93766530),
                 new LatLng(37.52747783, 126.93446962), //6
@@ -103,9 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // information_list
         List<LatLng> information = Arrays.asList(
                 // 아래는 예시 위치 -> 안내소 좌표 추가해야함!!!!!
-                new LatLng(37.52669406, 126.93313867), // 서울시청
-                new LatLng(37.570041, 126.982794),   // 경복궁
-                new LatLng(37.551229, 126.988205)    // 남산타워
+                new LatLng(37.52635436, 126.93357377) // 안내소 위치
         );
         // store_list
         List<LatLng> store = Arrays.asList(
