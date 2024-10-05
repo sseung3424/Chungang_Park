@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.chungangpark.parknavigator'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.chungangpark.parknavigator"
@@ -27,7 +27,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     ndkVersion '27.1.12297006'
-    buildToolsVersion '34.0.0'
+    buildToolsVersion '35.0.0'
 }
 
 dependencies {

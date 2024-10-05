@@ -1,118 +1,120 @@
 package com.chungangpark.parknavigator;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraUpdate;
 import com.naver.maps.map.NaverMap;
-import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.PolylineOverlay;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-public class PathFinder {
-
+public class PathFinder implements TextToSpeech.OnInitListener {
     private Context context;
     private NaverMap naverMap;
     private String apiKeyId;
     private String apiKeySecret;
+    private TextToSpeech textToSpeech;
 
+    // 생성자
     public PathFinder(Context context, NaverMap naverMap, String apiKeyId, String apiKeySecret) {
         this.context = context;
         this.naverMap = naverMap;
         this.apiKeyId = apiKeyId;
         this.apiKeySecret = apiKeySecret;
+        this.textToSpeech = new TextToSpeech(context, this); // TTS 초기화
     }
 
-    // 경로 탐색 메서드: 출발지와 목적지 경로를 찾고 지도에 표시
+    // 사용자 위치와 Polyline 간의 가장 가까운 점 찾기
+    public LatLng getClosestPointOnPolyline(LatLng userLocation, PolylineOverlay polyline) {
+        List<LatLng> polylinePoints = polyline.getCoords();
+        LatLng closestPoint = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (LatLng point : polylinePoints) {
+            double distance = getDistance(userLocation, point);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPoint = point;
+            }
+        }
+        return closestPoint;
+    }
+
+    // 두 좌표 간의 거리 계산 함수
+    private double getDistance(LatLng point1, LatLng point2) {
+        double earthRadius = 6371e3; // 지구 반지름, 미터
+        double lat1 = Math.toRadians(point1.latitude);
+        double lat2 = Math.toRadians(point2.latitude);
+        double deltaLat = Math.toRadians(point2.latitude - point1.latitude);
+        double deltaLng = Math.toRadians(point2.longitude - point1.longitude);
+
+        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) *
+                        Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return earthRadius * c;
+    }
+
+    // 사용자 위치에서 Polyline을 따라가는 경로 찾기
+    public void navigateAlongPolyline(LatLng userLocation, PolylineOverlay polyline) {
+        LatLng closestPoint = getClosestPointOnPolyline(userLocation, polyline);
+
+        if (closestPoint != null) {
+            // Polyline 상의 가장 가까운 지점으로 카메라 이동
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(closestPoint).zoomTo(17);
+            naverMap.moveCamera(cameraUpdate);
+
+            // 음성 안내 추가
+            String directionMessage = "경로를 따라 이동 중입니다. 현재 위치는 " +
+                    "위도 " + closestPoint.latitude + ", 경도 " + closestPoint.longitude + "입니다.";
+            speakDirection(directionMessage);
+        } else {
+            speakDirection("경로를 찾을 수 없습니다.");
+        }
+    }
+
+    // TextToSpeech 초기화
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            // 언어 설정 (한국어 또는 원하는 언어로 설정 가능)
+            int result = textToSpeech.setLanguage(Locale.KOREAN);
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "해당 언어는 지원되지 않습니다.");
+            }
+        } else {
+            Log.e("TTS", "TTS 초기화 실패.");
+        }
+    }
+
+    // 음성 안내 함수
+    private void speakDirection(String message) {
+        if (textToSpeech != null) {
+            textToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+    }
+
+    // 경로 찾기 실행
     public void findPath(LatLng startLatLng, LatLng endLatLng) {
-        // Directions API URL 생성
-        @SuppressLint("DefaultLocale") String directionsApiUrl = String.format(
-                "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=%f,%f&goal=%f,%f&option=trafast",
-                startLatLng.longitude, startLatLng.latitude,
-                endLatLng.longitude, endLatLng.latitude
-        );
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(startLatLng).zoomTo(15);
+        naverMap.moveCamera(cameraUpdate);
 
-        // OkHttp 클라이언트를 사용하여 API 요청
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(directionsApiUrl)
-                .addHeader("X-NCP-APIGW-API-KEY-ID", apiKeyId)
-                .addHeader("X-NCP-APIGW-API-KEY", apiKeySecret)
-                .build();
+        String pathMessage = "출발지에서 경로를 따라 잠실 공원까지 이동합니다.";
+        speakDirection(pathMessage);
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                // 실패 시 UI 스레드에서 Toast 메시지 표시
-                new Handler(Looper.getMainLooper()).post(() ->
-                        Toast.makeText(context, "경로 요청 실패", Toast.LENGTH_SHORT).show());
-            }
+        // 실제 Polyline을 사용하여 경로 안내 로직을 추가할 수 있음
+    }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    try {
-                        // 응답 데이터를 파싱
-                        String responseData = response.body().string();
-                        JSONObject jsonObject = new JSONObject(responseData);
-                        JSONArray routes = jsonObject.getJSONObject("route").getJSONArray("traoptimal");
-
-                        // 경로 좌표를 담을 리스트
-                        List<LatLng> routePoints = new ArrayList<>();
-
-                        // 경로 정보에서 경로 좌표 파싱
-                        JSONArray path = routes.getJSONObject(0).getJSONArray("path");
-                        for (int i = 0; i < path.length(); i++) {
-                            JSONArray point = path.getJSONArray(i);
-                            routePoints.add(new LatLng(point.getDouble(1), point.getDouble(0)));
-                        }
-
-                        // UI 스레드에서 경로 표시
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            // PolylineOverlay에 경로 설정
-                            PolylineOverlay polyline = new PolylineOverlay();
-                            polyline.setCoords(routePoints);
-                            polyline.setMap(naverMap); // 경로를 지도에 표시
-
-                            // 출발지와 도착지에 마커 추가
-                            Marker startMarker = new Marker();
-                            startMarker.setPosition(startLatLng);
-                            startMarker.setCaptionText("출발지");
-                            startMarker.setMap(naverMap);
-
-                            Marker endMarker = new Marker();
-                            endMarker.setPosition(endLatLng);
-                            endMarker.setCaptionText("도착지");
-                            endMarker.setMap(naverMap);
-
-                            Toast.makeText(context, "경로를 찾았습니다!", Toast.LENGTH_SHORT).show();
-                        });
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    new Handler(Looper.getMainLooper()).post(() ->
-                            Toast.makeText(context, "경로 요청 실패: " + response.message(), Toast.LENGTH_SHORT).show());
-                }
-            }
-        });
+    // TextToSpeech 종료
+    public void shutdownTTS() {
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
     }
 }

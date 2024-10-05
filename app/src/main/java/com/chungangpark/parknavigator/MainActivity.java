@@ -11,6 +11,7 @@ import com.naver.maps.geometry.LatLng;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.location.Location;
 import android.widget.Toast; // Toast 추가
 import java.io.OutputStream;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private Animator animator;
+    private PathFinder pathFinder;
 
     // 네이버 API 키
     private String apiKeyId = "kvuo475ub1";
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // 임의로 설정된 출발지와 도착지 (예시로 한강 공원 좌표 사용)
     private LatLng startLatLng = new LatLng(37.5283169, 126.9328034); // 여의도 공원 좌표
-    private LatLng endLatLng = new LatLng(37.5100, 127.1000);         // 잠실 공원 좌표
+    private LatLng endLatLng = new LatLng(37.5100, 127.1000);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +110,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // FusedLocationSource 설정 (위치 권한 요청)
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
+        // 잠실 공원 좌표
+
+        Button findPathButton = findViewById(R.id.find_path_button);
+        findPathButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (naverMap == null || pathFinder == null) {
+                    Toast.makeText(MainActivity.this, "길찾기 기능이 아직 초기화되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                LatLng userLocation = getUserCurrentLocation();  // 사용자 위치 가져오기
+                PolylineOverlay polyline = getBraillePolyline(); // 점자블록 Polyline 가져오기
+
+                if (userLocation != null && polyline != null) {
+                    pathFinder.navigateAlongPolyline(userLocation, polyline);
+                } else {
+                    Toast.makeText(MainActivity.this, "경로를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         // MapFragment 가져오기
         MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
@@ -121,17 +144,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 지도 초기화
         mapFragment.getMapAsync(this);
-
-        // 길찾기 버튼 설정
-        Button findPathButton = findViewById(R.id.find_path_button);
-        findPathButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 경로 탐색 시작
-                PathFinder pathFinder = new PathFinder(MainActivity.this, naverMap, apiKeyId, apiKeySecret);
-                pathFinder.findPath(startLatLng, endLatLng);
-            }
-        });
 
         /*// 블루투스 설정 함수 호출
         setupBluetooth();*/
@@ -148,6 +160,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 지도 UI 설정 (줌 버튼)
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
+
+        pathFinder = new PathFinder(this, naverMap, apiKeyId, apiKeySecret);
 
         // 위치 오버레이 설정
         LocationOverlay locationOverlay = naverMap.getLocationOverlay();
@@ -169,6 +183,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         BrailleBlockManager brailleBlockManager = new BrailleBlockManager();
         brailleBlockManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
     }
+
+    private LatLng getUserCurrentLocation() {
+        if (naverMap == null) {
+            Toast.makeText(this, "지도가 아직 준비되지 않았습니다.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        LocationOverlay locationOverlay = naverMap.getLocationOverlay();
+        return new LatLng(locationOverlay.getPosition().latitude, locationOverlay.getPosition().longitude);
+    }
+
+    private PolylineOverlay getBraillePolyline() {
+        if (brailleBlocks.isEmpty()) {
+            Toast.makeText(this, "점자 블록 경로가 없습니다.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        return brailleBlocks.get(0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // TTS 종료
+        if (pathFinder != null) {
+            pathFinder.shutdownTTS();
+        }
+    }
+
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {
         final String[] parkList = {"여의도 한강 공원", "망원 한강 공원","잠실 한강 공원"};
