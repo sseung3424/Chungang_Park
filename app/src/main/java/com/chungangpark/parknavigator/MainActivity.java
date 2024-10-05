@@ -157,6 +157,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
 
+        // 마커 매니저 생성 및 마커 추가
+        MarkerManager markerManager = new MarkerManager(naverMap);
+        markerManager.addMarkers();
+
         // PathFinder 객체 초기화
         pathFinder = new PathFinder(this, naverMap);  // 여기에 PathFinder 초기화
 
