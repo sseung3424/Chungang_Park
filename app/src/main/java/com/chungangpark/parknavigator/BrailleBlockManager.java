@@ -40,7 +40,6 @@ public class BrailleBlockManager {
         this.context = context;
         this.outputStream = outputStream;
 
-
         // case 1
         coordinateCases.put(new LatLng(37.52749844, 126.93282825), 1);
         coordinateCases.put(new LatLng(37.52673475, 126.93369419), 1);
@@ -200,6 +199,9 @@ public class BrailleBlockManager {
             if (isNearObstacle(userPosition)) {
                 Toast.makeText(context, "장애물 앞입니다.", Toast.LENGTH_SHORT).show();
             }
+
+            checkUserProximity(userPosition);
+
 
 
             // 1. 장애물에 근접했는지 확인 (우선순위 1)
