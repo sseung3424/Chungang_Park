@@ -75,12 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
-    private Animator animator;
     private PathFinder pathFinder;
-
-    // 네이버 API 키
-    private String apiKeyId = "kvuo475ub1";
-    private String apiKeySecret = "a9svDttBV8f4zj7iD2XnXVnMejFW4Cn64E14dpLM";
 
 
     // 임의로 설정된 출발지와 도착지 (예시로 한강 공원 좌표 사용)
@@ -113,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 잠실 공원 좌표
 
         Button findPathButton = findViewById(R.id.find_path_button);
+        // 길찾기 버튼 클릭 이벤트
         findPathButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,12 +118,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
                 LatLng userLocation = getUserCurrentLocation();  // 사용자 위치 가져오기
-                PolylineOverlay polyline = getBraillePolyline(); // 점자블록 Polyline 가져오기
+                LatLng destination = new LatLng(37.51925551, 126.94159282); // 임시로 목적지 좌표 넣어둠 !!수정 필요!!
 
-                if (userLocation != null && polyline != null) {
-                    pathFinder.navigateAlongPolyline(userLocation, polyline);
+                if (userLocation != null) {
+                    pathFinder.navigateToDestination(userLocation, destination);
                 } else {
-                    Toast.makeText(MainActivity.this, "경로를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "사용자의 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -161,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
 
-        pathFinder = new PathFinder(this, naverMap, apiKeyId, apiKeySecret);
 
         // 위치 오버레이 설정
         LocationOverlay locationOverlay = naverMap.getLocationOverlay();
