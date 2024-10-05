@@ -12,6 +12,7 @@ import java.util.List;
 public class BrailleBlockManager {
     private Context context;
     private List<LatLng> brailleBlockPoints;
+    private boolean isUserNearBrailleBlock = false; // 사용자 상태를 추적하는 플래그
 
     public BrailleBlockManager(Context context) {
         this.context = context;
@@ -66,9 +67,18 @@ public class BrailleBlockManager {
             }
         }
 
-        // 최소 거리가 2m 이상일 때 알림
-        if (minDistance > 4.0) {
-            Toast.makeText(context, "점자블록에서 2m 이상 떨어졌습니다.", Toast.LENGTH_SHORT).show();
+        // 최소 거리가 2m 이내일 때 Toast 신호가 계속 발생하도록 처리
+        if (minDistance <= 4.0) {
+            if (!isUserNearBrailleBlock) { // 처음 2m 이내로 들어올 때
+                isUserNearBrailleBlock = true; // 상태 업데이트
+            }
+            Toast.makeText(context, "점자블록 근처입니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
+        } else {
+            if (isUserNearBrailleBlock) { // 처음 2m 이상으로 벗어났을 때
+                isUserNearBrailleBlock = false; // 상태 업데이트
+            }
+            // 2m 이상일 때도 신호를 계속 발생
+            Toast.makeText(context, "점자블록에서 2m 이상 떨어졌습니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
         }
     }
 }
