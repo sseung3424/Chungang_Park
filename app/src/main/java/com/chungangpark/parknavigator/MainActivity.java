@@ -77,11 +77,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
     private PathFinder pathFinder;
 
-
-    // 임의로 설정된 출발지와 도착지 (예시로 한강 공원 좌표 사용)
-    private LatLng startLatLng = new LatLng(37.5283169, 126.9328034); // 여의도 공원 좌표
-    private LatLng endLatLng = new LatLng(37.5100, 127.1000);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +91,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        // 길찾기 버튼 비활성화
+        Button findPathButton = findViewById(R.id.find_path_button);
+        findPathButton.setEnabled(false);  // 초기에는 비활성화 상태
+
         // ActionBar 설정 (위치 추적 모드를 위한)
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -107,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
         // 잠실 공원 좌표
 
-        Button findPathButton = findViewById(R.id.find_path_button);
         // 길찾기 버튼 클릭 이벤트
         findPathButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
 
+        // PathFinder 객체 초기화
+        pathFinder = new PathFinder(this, naverMap);  // 여기에 PathFinder 초기화
 
         // 위치 오버레이 설정
         LocationOverlay locationOverlay = naverMap.getLocationOverlay();
@@ -167,6 +167,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 위치 추적 설정
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
+
+        // findPathButton 활성화
+        Button findPathButton = findViewById(R.id.find_path_button);
+        findPathButton.setEnabled(true); // 지도와 PathFinder가 준비되면 버튼 활성화
 
         // 선택한 공원으로 지도 이동
         String parkName = getIntent().getStringExtra("park_name");
