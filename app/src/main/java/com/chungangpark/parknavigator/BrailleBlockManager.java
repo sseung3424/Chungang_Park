@@ -19,7 +19,7 @@ import java.util.UUID;
 import com.naver.maps.map.overlay.Marker;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.naver.maps.map.overlay.OverlayImage; // 마커 아이콘 관련
 public class BrailleBlockManager {
     private boolean wasNearObstacle = false;
     private Context context;
@@ -261,6 +261,10 @@ public class BrailleBlockManager {
         for (LatLng point : brailleBlockPoints) {
             Marker marker = new Marker();
             marker.setPosition(point); // 각 점의 위치
+            // 마커를 주황색으로 설정
+            marker.setIcon(OverlayImage.fromResource(R.drawable.ic_marker_orange)); // 주황색 마커 이미지로 설정
+            marker.setWidth(60); // 마커 크기 설정
+            marker.setHeight(60); // 마커 크기 설정
             marker.setMap(naverMap); // 마커를 지도에 추가
         }
 
