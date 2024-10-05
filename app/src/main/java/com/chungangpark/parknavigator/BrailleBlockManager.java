@@ -24,23 +24,23 @@ public class BrailleBlockManager {
     private final BrailleBlockDetector bbd = new BrailleBlockDetector();
     private final ArduinoVibrationController avc = new ArduinoVibrationController();
     private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
-    // 새로운 변수 추가
-    private boolean wasOnBrailleBlock = false; // 사용자가 처음에는 점자블록 위에 없다고 가정
+    private List<LatLng> brailleBlockPoints;
+    private boolean isUserNearBrailleBlock = false; // 사용자 상태를 추적하는 플래그
+
     // 좌표별로 case 번호를 지정하기 위한 Map 정의
     private final Map<LatLng, Integer> coordinateCases = new HashMap<>();
-    private boolean wasOnLinearBlock = false; // 이전에 선형 점자블록에 있었는지 확인하는 플래그
     // 장애물 좌표 정의
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
     private final LatLng obstacle2 = new LatLng(37.52680387, 126.93437803);
     private final LatLng obstacle_test = new LatLng(37.52001523, 127.09856174);
-    // 점자블록을 나타내는 점(Point) 리스트
-    private List<LatLng> brailleBlockPoints = new ArrayList<>();
     // 생성자에서 좌표와 case 번호를 매핑
+
     public BrailleBlockManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
         // 앱이 실행되면 바로 명령어 7번을 아두이노로 전송
         sendTestCommandToArduino();
+        brailleBlockPoints = new ArrayList<>();
 
         // case 1
         coordinateCases.put(new LatLng(37.52749844, 126.93282825), 1);
@@ -78,11 +78,11 @@ public class BrailleBlockManager {
         coordinateCases.put(obstacle1, 6);
         coordinateCases.put(obstacle2, 6);
 
-        // test 좌표 추가
-// 점자블록 좌표를 추가합니다. (예시로 좌표 몇 개 추가)
+        // 세 좌표를 점자블록 리스트에 추가(test 좌표)
         brailleBlockPoints.add(new LatLng(37.51999291, 127.09851956));
         brailleBlockPoints.add(new LatLng(37.52000368, 127.09853365));
         brailleBlockPoints.add(new LatLng(37.52001018, 127.09854337));
+
     }
     public BrailleBlockManager(Context context){this.context = context;}
 
@@ -119,7 +119,6 @@ public class BrailleBlockManager {
 
     public void addBrailleBlockonMap(@NonNull NaverMap naverMap) {
 
-
         // 선형 점자블록 추가
         addLinearBrailleBlock(naverMap, new LatLng(37.52709831, 126.93245824), new LatLng(37.52713827, 126.93239991));
         addLinearBrailleBlock(naverMap, new LatLng(37.52719621, 126.93243238), new LatLng(37.52746540, 126.93278579));
@@ -132,18 +131,14 @@ public class BrailleBlockManager {
         addLinearBrailleBlock(naverMap, new LatLng(37.52655814, 126.93351839), new LatLng(37.52654010, 126.93361643));
         addLinearBrailleBlock(naverMap, new LatLng(37.52654010, 126.93361643), new LatLng(37.52650548, 126.93375344));
         addLinearBrailleBlock(naverMap, new LatLng(37.52650548, 126.93375344), new LatLng(37.52644432, 126.93393378));
-
         addLinearBrailleBlock(naverMap, new LatLng(37.52749844, 126.93282825), new LatLng(37.52753334, 126.93287541));
         addLinearBrailleBlock(naverMap, new LatLng(37.52673475, 126.93369419), new LatLng(37.52646021, 126.93394120));
         addLinearBrailleBlock(naverMap, new LatLng(37.52640692, 126.93398781), new LatLng(37.52607395, 126.93426738));
         addLinearBrailleBlock(naverMap, new LatLng(37.52650548, 126.93375344), new LatLng(37.52644432, 126.93393378));
         addLinearBrailleBlock(naverMap, new LatLng(37.52645537, 126.93398751), new LatLng(37.52678618, 126.93435865));
-
         addLinearBrailleBlock(naverMap, new LatLng(37.52672839, 126.93294539), new LatLng(37.52655245, 126.93318723));
-
         addLinearBrailleBlock(naverMap, new LatLng(37.52653469, 126.93323310), new LatLng(37.52623683, 126.93361226));
         addLinearBrailleBlock(naverMap, new LatLng(37.52621122, 126.93364469), new LatLng(37.52601374, 126.93390651));
-
         addLinearBrailleBlock(naverMap, new LatLng(37.52601184, 126.93394634), new LatLng(37.52605962, 126.93401307));
         addLinearBrailleBlock(naverMap, new LatLng(37.52606486, 126.93406153), new LatLng(37.52605962, 126.93401307));
         addLinearBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52606486, 126.93406153));
@@ -154,51 +149,45 @@ public class BrailleBlockManager {
         addDotBrailleBlock(naverMap, new LatLng(37.52749844, 126.93282825), new LatLng(37.52748075, 126.93280613));
         addDotBrailleBlock(naverMap, new LatLng(37.5666102, 126.9783881), new LatLng(37.5668202, 126.9786881));
         addDotBrailleBlock(naverMap, new LatLng(37.52754974, 126.93289687), new LatLng(37.52753334, 126.93287541));
-
         addDotBrailleBlock(naverMap, new LatLng(37.52677942, 126.93364775), new LatLng(37.52676205, 126.93366983));
         addDotBrailleBlock(naverMap, new LatLng(37.52674941, 126.93364060), new LatLng(37.52676205, 126.93366983));
         addDotBrailleBlock(naverMap, new LatLng(37.52673475, 126.93369419), new LatLng(37.52676205, 126.93366983));
-
         addDotBrailleBlock(naverMap, new LatLng(37.52656957, 126.93325711), new LatLng(37.52657932, 126.93327844));
         addDotBrailleBlock(naverMap, new LatLng(37.52659294, 126.93330747), new LatLng(37.52657932, 126.93327844));
         addDotBrailleBlock(naverMap, new LatLng(37.52657473, 126.93330811), new LatLng(37.52657932, 126.93327844));
         addDotBrailleBlock(naverMap, new LatLng(37.52657473, 126.93330811), new LatLng(37.52657932, 126.93327844));
-
-
         addDotBrailleBlock(naverMap, new LatLng(37.52656118, 126.93323845), new LatLng(37.52654361, 126.93320511));
-
         addDotBrailleBlock(naverMap, new LatLng(37.52719621, 126.93243238), new LatLng(37.52715291, 126.93237505));
         addDotBrailleBlock(naverMap, new LatLng(37.52713827, 126.93239991), new LatLng(37.52715291, 126.93237505));
-
         addDotBrailleBlock(naverMap, new LatLng(37.52646021, 126.93394120), new LatLng(37.52643553, 126.93396365));
         addDotBrailleBlock(naverMap, new LatLng(37.52644432, 126.93393378), new LatLng(37.52643553, 126.93396365));
         addDotBrailleBlock(naverMap, new LatLng(37.52640692, 126.93398781), new LatLng(37.52643553, 126.93396365));
         addDotBrailleBlock(naverMap, new LatLng(37.52645537, 126.93398751), new LatLng(37.52643553, 126.93396365));
         addDotBrailleBlock(naverMap, new LatLng(37.52678618, 126.93435865), new LatLng(37.52680387, 126.93437803));
-
         addDotBrailleBlock(naverMap, new LatLng(37.52655245, 126.93318723), new LatLng(37.52654361, 126.93320511));
         addDotBrailleBlock(naverMap, new LatLng(37.52653469, 126.93323310), new LatLng(37.52654361, 126.93320511));
-
-
         addDotBrailleBlock(naverMap, new LatLng(37.52623683, 126.93361226), new LatLng(37.52622713, 126.93362838));
         addDotBrailleBlock(naverMap, new LatLng(37.52623836, 126.93364102), new LatLng(37.52622713, 126.93362838));
         addDotBrailleBlock(naverMap, new LatLng(37.52621122, 126.93364469), new LatLng(37.52622713, 126.93362838));
-
         addDotBrailleBlock(naverMap, new LatLng(37.52601374, 126.93390651), new LatLng(37.52599541, 126.93392535));
         addDotBrailleBlock(naverMap, new LatLng(37.52601184, 126.93394634), new LatLng(37.52599541, 126.93392535));
         addDotBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52604725, 126.93428587));
         addDotBrailleBlock(naverMap, new LatLng(37.52607395, 126.93426738), new LatLng(37.52604725, 126.93428587));
-
-        // 테스트 좌표 ///////////////////////////////////////////
-        addLinearBrailleBlock(naverMap, new LatLng(37.51991877, 127.09838230), new LatLng(37.51988407, 127.09831693));
-        addDotBrailleBlock(naverMap, new LatLng(37.51988407, 127.09831693), new LatLng(37.51986467, 127.09827954));
-
 
         // 장애물 위치에 1m 반경의 원 추가
         addObstacleCircle(naverMap, obstacle1);
         addObstacleCircle(naverMap, obstacle2);
         addObstacleCircle(naverMap, obstacle_test);
 
+        for (LatLng point : brailleBlockPoints) {
+            CircleOverlay circle = new CircleOverlay();
+            circle.setCenter(point);
+            circle.setRadius(1.0); // 반경 1m
+            circle.setColor(0x40FFA500); // 주황색 반투명
+            circle.setOutlineColor(0xFFFFA500); // 주황색 테두리
+            circle.setOutlineWidth(3); // 테두리 두께
+            circle.setMap(naverMap); // 지도에 원 추가
+        }
 
         // 화장실 위치
         // 37.52623836, 126.93364102
@@ -206,28 +195,12 @@ public class BrailleBlockManager {
         naverMap.addOnLocationChangeListener(location -> {
             LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
 
-           /* // 사용자가 선형 또는 점형 점자블록 위에 있는지 확인
-            boolean isOnLinearBlock = bbd.isUserOnBrailleBlocks(userPosition); // 선형 점자블록 위에 있는지 확인
-            boolean isOnDotBlock = bbd.isUserOnDotBrailleBlock(userPosition); // 점형 점자블록 위에 있는지 확인
-            boolean isOnBrailleBlock = isOnLinearBlock || isOnDotBlock; // 둘 중 하나라도 true이면 점자블록 위에 있음*/
-// 통합된 점자블록 확인 함수 호출
-            boolean isOnBrailleBlock = bbd.isUserOnAnyBrailleBlock(userPosition);
+
             // 4. 장애물 앞에 있을 때 진동 (테스트용)
             if (isNearObstacle(userPosition)) {
                 Toast.makeText(context, "장애물 앞입니다.", Toast.LENGTH_SHORT).show();
             }
 
-            /*// 가장 가까운 점을 찾음
-            LatLng nearestPoint = bbd.getNearestBrailleBlock(userPosition, brailleBlockPoints);
-
-            // 가장 가까운 점과의 거리를 계산
-            double distanceToNearestPoint = bbd.distance(userPosition, nearestPoint);
-            double thresholdDistance = 2.0; // 2미터 이상 떨어지면 경고
-
-            // 사용자가 일정 거리 이상 떨어졌을 때 알림
-            if (distanceToNearestPoint > thresholdDistance) {
-                Toast.makeText(context, "점자블록에서 벗어났습니다", Toast.LENGTH_SHORT).show();
-            }*/
 
             // 1. 장애물에 근접했는지 확인 (우선순위 1)
             /*boolean nearObstacle = isNearObstacle(userPosition);
@@ -252,58 +225,56 @@ public class BrailleBlockManager {
             if (isOnLinearBlock && !wasOnLinearBlock) {
                 handleCaseBasedOnProximity(userPosition);  // 1m 범위 내에서 가장 가까운 점자블록 처리
             }*/
-
         });
-
     }
-    // 지도에 점자블록을 주황색 점으로 표시하는 함수
-    public void addBrailleBlockPointsOnMap(@NonNull NaverMap naverMap) {
+
+    // 사용자와 점자블록 좌표 간의 거리를 계산하는 함수
+    private double distanceBetween(LatLng start, LatLng end) {
+        double earthRadius = 6371000; // 지구 반지름 (미터)
+        double dLat = Math.toRadians(end.latitude - start.latitude);
+        double dLng = Math.toRadians(end.longitude - start.longitude);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(start.latitude)) * Math.cos(Math.toRadians(end.latitude)) *
+                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return earthRadius * c; // 두 점 사이의 거리 반환 (미터)
+    }
+
+    // 사용자와 세 좌표 간의 최소 거리를 계산하고 알림을 보내는 함수
+    private void checkUserProximity(LatLng userPosition) {
+        double minDistance = Double.MAX_VALUE;
+
+        // 사용자와 각 점자블록 좌표 간의 거리를 계산
         for (LatLng point : brailleBlockPoints) {
-            CircleOverlay circle = new CircleOverlay();
-            circle.setCenter(point);
-            circle.setRadius(1.0); // 반경 1m로 설정 (원하는 크기로 조정 가능)
-            circle.setColor(0x40FFA500); // 주황색 반투명 (0x40은 투명도, 뒤는 색상 코드)
-            circle.setOutlineColor(0xFFFFA500); // 주황색 테두리
-            circle.setOutlineWidth(3); // 테두리 두께
-            circle.setMap(naverMap); // 지도에 점을 추가
+            double distance = distanceBetween(userPosition, point);
+            if (distance < minDistance) {
+                minDistance = distance; // 최소 거리 업데이트
+            }
         }
 
-        // 위치 변경 리스너 추가
-        naverMap.addOnLocationChangeListener(location -> {
-            LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
-
-            // 가장 가까운 점을 찾음
-            LatLng nearestPoint = bbd.getNearestBrailleBlock(userPosition, brailleBlockPoints);
-
-            // 가장 가까운 점과의 거리를 계산
-            double distanceToNearestPoint = bbd.distance(userPosition, nearestPoint);
-            double thresholdDistance = 2.0; // 2미터 이상 떨어지면 경고
-
-            // 사용자가 일정 거리 이상 떨어졌을 때 알림
-            if (distanceToNearestPoint > thresholdDistance) {
-                Toast.makeText(context, "점자블록에서 벗어났습니다", Toast.LENGTH_SHORT).show();
+        // 최소 거리가 2m 이내일 때 Toast 신호가 계속 발생하도록 처리
+        if (minDistance <= 4.0) {
+            if (!isUserNearBrailleBlock) { // 처음 2m 이내로 들어올 때
+                isUserNearBrailleBlock = true; // 상태 업데이트
             }
-        });
+            Toast.makeText(context, "점자블록 근처입니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
+        } else {
+            if (isUserNearBrailleBlock) { // 처음 2m 이상으로 벗어났을 때
+                isUserNearBrailleBlock = false; // 상태 업데이트
+            }
+            // 2m 이상일 때도 신호를 계속 발생
+            Toast.makeText(context, "점자블록에서 2m 이상 떨어졌습니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
+        }
     }
+
     // 장애물에 도달했는지 확인하는 함수
     private boolean isNearObstacle(LatLng userPosition) {
         double thresholdDistance = 2.0; // 장애물 근처로 간주할 거리 기준(2m)
-        return (bbd.distance(userPosition, obstacle1) < thresholdDistance) ||
+        return (distanceBetween(userPosition, obstacle1) < thresholdDistance) ||
               // !!!!!!!!여기 나중에 꼭 obstacle_2로 바꿀 것!!!!!!!!!!!!!
-                (bbd.distance(userPosition, obstacle_test) < thresholdDistance);
+                (distanceBetween(userPosition, obstacle_test) < thresholdDistance);
     }
-      /*// 2. 사용자가 점자블록에 근접했는지 확인하는 로직에 범위 1m를 설정하여 신호가 작동하도록 수정
-    private void handleCaseBasedOnProximity(LatLng userPosition) {
-        LatLng nearestCoordinate = bbd.getNearestBrailleBlock(userPosition);
-        if (nearestCoordinate != null) {
-            double distanceToNearestBlock = bbd.distance(userPosition, nearestCoordinate);
-            double thresholdDistance = 1.0; // 1미터 근방에서 작동
-            if (distanceToNearestBlock <= thresholdDistance) {
-                int caseNumber = coordinateCases.getOrDefault(nearestCoordinate, -1);
-                handleCase(caseNumber);  // case 번호에 따른 동작 처리
-            }
-        }
-    }*/
+
     // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
     public void sendTestCommandToArduino() {
         try {
@@ -319,7 +290,6 @@ public class BrailleBlockManager {
             Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
         }
     }
-
 
     // case 번호에 따른 동작 처리 함수 // 아두이노로 case 번호 전송
     private void handleCase(int caseNumber) {
