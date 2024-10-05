@@ -30,7 +30,8 @@ public class SectionObstacleManager {
     // 장애물 좌표 정의
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
     private final LatLng obstacle2 = new LatLng(37.52680387, 126.93437803);
-    private final LatLng obstacle_test = new LatLng(37.52001523, 127.09856174);
+    private final LatLng obstacle_test = new LatLng(
+            37.52001523, 127.09856174);
     // 생성자에서 좌표와 case 번호를 매핑
 
     public SectionObstacleManager(Context context, OutputStream outputStream) {
@@ -73,15 +74,10 @@ public class SectionObstacleManager {
         coordinateCases.put(obstacle1, 6);
         coordinateCases.put(obstacle2, 6);
 
-        // 테스트 점자블록 좌표 추가
-        addBrailleBlockCoordinates();
+
     }
     public SectionObstacleManager(Context context){this.context = context;}
-    private void addBrailleBlockCoordinates() {
-        brailleBlockPoints.add(new LatLng(37.51999291, 127.09851956));
-        brailleBlockPoints.add(new LatLng(37.52000368, 127.09853365));
-        brailleBlockPoints.add(new LatLng(37.52001018, 127.09854337));
-    }
+
     // 선형 점자블록 추가 함수
     private void addLinearBrailleBlock(NaverMap naverMap, LatLng startPoint, LatLng endPoint) {
         PolylineOverlay polyline = new PolylineOverlay();
@@ -106,7 +102,7 @@ public class SectionObstacleManager {
     private void addObstacleCircle(NaverMap naverMap, LatLng obstacle) {
         CircleOverlay circle = new CircleOverlay();
         circle.setCenter(obstacle);
-        circle.setRadius(1.5); // 1.5미터 반경
+        circle.setRadius(1.0); // 1.5미터 반경
         circle.setColor(0x40FF0000); // 반투명 빨간색
         circle.setOutlineColor(0xFFFF0000); // 빨간색 테두리
         circle.setOutlineWidth(3); // 테두리 두께
@@ -174,16 +170,6 @@ public class SectionObstacleManager {
         addObstacleCircle(naverMap, obstacle1);
         addObstacleCircle(naverMap, obstacle2);
         addObstacleCircle(naverMap, obstacle_test);
-
-        for (LatLng point : brailleBlockPoints) {
-            CircleOverlay circle = new CircleOverlay();
-            circle.setCenter(point);
-            circle.setRadius(1.0); // 반경 1m
-            circle.setColor(0x40FFA500); // 주황색 반투명
-            circle.setOutlineColor(0xFFFFA500); // 주황색 테두리
-            circle.setOutlineWidth(3); // 테두리 두께
-            circle.setMap(naverMap); // 지도에 원 추가
-        }
 
         // 화장실 위치
         // 37.52623836, 126.93364102

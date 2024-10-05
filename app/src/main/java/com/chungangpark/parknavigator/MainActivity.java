@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private Animator animator;
+    private BrailleBlockManager brailleBlockManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +119,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 점자 블록 매니저 생성 및 점자 블록 추가
         SectionObstacleManager sectionObstacleManager = new SectionObstacleManager(this);
         sectionObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
+        // BrailleBlockManager 초기화 및 점자블록 추가
+        brailleBlockManager = new BrailleBlockManager(this);
+        brailleBlockManager.addBrailleBlockOnMap(naverMap);  // 지도 준비 완료 후 점자블록 추가
+
     }
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {
