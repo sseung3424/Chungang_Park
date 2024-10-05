@@ -15,6 +15,9 @@ import java.util.List;
 public class MarkerManager {
     private NaverMap naverMap;
     private List<Marker> markers = new ArrayList<>();
+    private List<Marker> toiletMarkers = new ArrayList<>();
+    private List<Marker> informationMarkers = new ArrayList<>();
+    private List<Marker> storeMarkers = new ArrayList<>();
 
     public MarkerManager(NaverMap naverMap) {
         this.naverMap = naverMap;
@@ -82,10 +85,24 @@ public class MarkerManager {
         );
 
         // 마커 추가
-        addMarkerList(toilet, R.drawable.toliet_marker, 150, 150); // 크기 조절 예시
-        addMarkerList(information, R.drawable.information_marker, 150, 150); // 크기 조절 예시
-        addMarkerList(store, R.drawable.store_marker, 150, 150); // 크기 조절 예시
+        addMarkerList(toilet, R.drawable.toliet_marker, 150, 150, toiletMarkers);
+        addMarkerList(information, R.drawable.information_marker, 150, 150, informationMarkers);
+        addMarkerList(store, R.drawable.store_marker, 150, 150, storeMarkers);
     }
+
+    private void addMarkerList(List<LatLng> places, int resource, int width, int height, List<Marker> markerList) {
+        for (LatLng place : places) {
+            Marker marker = new Marker();
+            marker.setPosition(place);
+            marker.setMap(naverMap);
+            marker.setIcon(OverlayImage.fromResource(resource));
+            marker.setWidth(width);
+            marker.setHeight(height);
+            markerList.add(marker);
+            markers.add(marker);
+        }
+    }
+
 
     // 사용자 위치와 30m 반경 내에 있는 마커의 정보를 반환
     public List<String> getNearbyMarkers(LatLng userLocation, double radiusMeters) {
@@ -106,5 +123,18 @@ public class MarkerManager {
         float[] results = new float[1];
         Location.distanceBetween(point1.latitude, point1.longitude, point2.latitude, point2.longitude, results);
         return results[0]; // 미터 단위로 반환
+    }
+
+    // 특정 마커 종류별로 반환하는 메서드
+    public List<Marker> getToiletMarkers() {
+        return toiletMarkers;
+    }
+
+    public List<Marker> getInformationMarkers() {
+        return informationMarkers;
+    }
+
+    public List<Marker> getStoreMarkers() {
+        return storeMarkers;
     }
 }

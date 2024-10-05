@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private PathFinder pathFinder;
-    private MarkerManager markerManager;
+    MarkerManager markerManager = new MarkerManager(naverMap);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,41 +99,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         nearbyInfoButton.setOnClickListener(v -> showNearbyInfo());
 
 
-        // 길찾기 버튼 비활성화
+        // 길찾기 버튼 설정
         LinearLayout findPathButton = findViewById(R.id.btn_find_path);
         findPathButton.setEnabled(false);  // 초기에는 비활성화 상태
 
-        // ActionBar 설정 (위치 추적 모드를 위한)
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
-        }
+        // 길찾기 버튼을 눌렀을 때 동작 정의
+        findPathButton.setOnClickListener(v -> {
+            if (naverMap == null || markerManager == null) {
+                Toast.makeText(MainActivity.this, "길찾기 기능이 아직 초기화되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 길찾기 대화창 표시
+            showFindPathDialog();
+        });
 
         // FusedLocationSource 설정 (위치 권한 요청)
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
-
-        // 길찾기 버튼을 눌렀을 때 동작 정의
-        findPathButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (naverMap == null || pathFinder == null) {
-                    Toast.makeText(MainActivity.this, "길찾기 기능이 아직 초기화되지 않았습니다.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                LatLng userLocation = getUserCurrentLocation();  // 사용자 위치 가져오기
-                PolylineOverlay polyline = getBraillePolyline(); // 점자블록 Polyline 가져오기
-
-                if (userLocation != null && polyline != null) {
-                    // 점자블록을 따라 안내
-                    pathFinder.navigateAlongPolyline(userLocation, polyline, DESTINATION);
-                } else {
-                    Toast.makeText(MainActivity.this, "경로를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
 
         // MapFragment 가져오기
         MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
@@ -144,32 +126,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 지도 초기화
         mapFragment.getMapAsync(this);
-
-        // 지도 초기화
-        mapFragment.getMapAsync(this);
-
-        /*// 블루투스 설정 함수 호출
-        setupBluetooth();*/
-    }
-
-    // 클래스에 점자블록 리스트 추가
-    public static List<PolylineOverlay> brailleBlocks = new ArrayList<>();
-
-    // 주변 정보 안내 버튼을 눌렀을 때 호출되는 메서드
-    private void showNearbyInfo() {
-        LatLng userLocation = getUserCurrentLocation(); // 사용자의 현재 위치 가져오기
-        if (userLocation != null && markerManager != null) {
-            List<String> nearbyLocations = markerManager.getNearbyMarkers(userLocation, 30); // 30m 반경 내 마커들 가져오기
-            if (nearbyLocations.isEmpty()) {
-                Toast.makeText(this, "주변 30m 내에 위치가 없습니다.", Toast.LENGTH_SHORT).show();
-            } else {
-                for (String location : nearbyLocations) {
-                    Toast.makeText(this, location + "가(이) 30m 내에 있습니다.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        } else {
-            Toast.makeText(this, "현재 위치를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
@@ -182,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setZoomControlEnabled(false);
 
         // 마커 매니저 생성 및 마커 추가
-        MarkerManager markerManager = new MarkerManager(naverMap);
         markerManager.addMarkers();
 
         // PathFinder 객체 초기화
@@ -211,6 +166,93 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 점자 블록 매니저 생성 및 점자 블록 추가
         BrailleBlockManager brailleBlockManager = new BrailleBlockManager();
         brailleBlockManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
+    }
+
+    // 길찾기 선택 다이얼로그 표시
+    private void showFindPathDialog() {
+        final String[] options = {"화장실", "안내소", "매점"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("길찾기 옵션 선택")
+                .setItems(options, (dialog, which) -> {
+                    LatLng userLocation = getUserCurrentLocation();  // 사용자 위치 가져오기
+                    if (userLocation == null) {
+                        Toast.makeText(MainActivity.this, "현재 위치를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    LatLng destination = null;
+
+                    switch (which) {
+                        case 0: // 화장실 선택
+                            destination = findNearestLocation(userLocation, markerManager.getToiletMarkers());
+                            break;
+                        case 1: // 안내소 선택
+                            destination = findNearestLocation(userLocation, markerManager.getInformationMarkers());
+                            break;
+                        case 2: // 매점 선택
+                            destination = findNearestLocation(userLocation, markerManager.getStoreMarkers());
+                            break;
+                    }
+
+                    if (destination != null) {
+                        moveToDestination(destination);
+                    } else {
+                        Toast.makeText(MainActivity.this, "목적지를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
+    }
+
+    // 클래스에 점자블록 리스트 추가
+    public static List<PolylineOverlay> brailleBlocks = new ArrayList<>();
+
+    // 주변 정보 안내 버튼을 눌렀을 때 호출되는 메서드
+    private void showNearbyInfo() {
+        LatLng userLocation = getUserCurrentLocation(); // 사용자의 현재 위치 가져오기
+        if (userLocation != null && markerManager != null) {
+            List<String> nearbyLocations = markerManager.getNearbyMarkers(userLocation, 30); // 30m 반경 내 마커들 가져오기
+            if (nearbyLocations.isEmpty()) {
+                Toast.makeText(this, "주변 30m 내에 위치가 없습니다.", Toast.LENGTH_SHORT).show();
+            } else {
+                for (String location : nearbyLocations) {
+                    Toast.makeText(this, location + "가(이) 30m 내에 있습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            Toast.makeText(this, "현재 위치를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 가장 가까운 위치 찾기
+    private LatLng findNearestLocation(LatLng userLocation, List<Marker> markers) {
+        LatLng closestLocation = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (Marker marker : markers) {
+            double distance = getDistance(userLocation, marker.getPosition());
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestLocation = marker.getPosition();
+            }
+        }
+        return closestLocation;
+    }
+
+    // 두 지점 간의 거리 계산 (미터 단위)
+    private double getDistance(LatLng point1, LatLng point2) {
+        float[] results = new float[1];
+        Location.distanceBetween(point1.latitude, point1.longitude, point2.latitude, point2.longitude, results);
+        return results[0]; // 거리 반환 (미터 단위)
+    }
+
+    // 목적지로 이동
+    private void moveToDestination(LatLng destination) {
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(destination).zoomTo(17);
+        naverMap.moveCamera(cameraUpdate);
+
+        // 목적지 설정 및 안내 호출
+        pathFinder.navigateToDestination(getUserCurrentLocation(), destination);
+        Toast.makeText(this, "목적지로 안내를 시작합니다.", Toast.LENGTH_SHORT).show();
     }
 
     private LatLng getUserCurrentLocation() {
