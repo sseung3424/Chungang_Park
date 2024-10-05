@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private PathFinder pathFinder;
+    private MarkerManager markerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 showParkListDialog();
             }
         });
+
+        // '주변 정보 안내' 버튼 설정
+        Button nearbyInfoButton = findViewById(R.id.nearby_info_button);
+        nearbyInfoButton.setOnClickListener(v -> showNearbyInfo());
+
 
         // 길찾기 버튼 비활성화
         Button findPathButton = findViewById(R.id.find_path_button);
@@ -147,6 +153,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // 클래스에 점자블록 리스트 추가
     public static List<PolylineOverlay> brailleBlocks = new ArrayList<>();
+
+    // 주변 정보 안내 버튼을 눌렀을 때 호출되는 메서드
+    private void showNearbyInfo() {
+        LatLng userLocation = getUserCurrentLocation(); // 사용자의 현재 위치 가져오기
+        if (userLocation != null && markerManager != null) {
+            List<String> nearbyLocations = markerManager.getNearbyMarkers(userLocation, 30); // 30m 반경 내 마커들 가져오기
+            if (nearbyLocations.isEmpty()) {
+                Toast.makeText(this, "주변 30m 내에 위치가 없습니다.", Toast.LENGTH_SHORT).show();
+            } else {
+                for (String location : nearbyLocations) {
+                    Toast.makeText(this, location + "가(이) 30m 내에 있습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            Toast.makeText(this, "현재 위치를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {

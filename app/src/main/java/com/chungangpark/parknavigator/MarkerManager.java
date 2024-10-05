@@ -1,19 +1,44 @@
 // MarkerManager.java
 package com.chungangpark.parknavigator;
 
+import android.location.Location;
+
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MarkerManager {
     private NaverMap naverMap;
+    private List<Marker> markers = new ArrayList<>();
 
     public MarkerManager(NaverMap naverMap) {
         this.naverMap = naverMap;
+    }
+
+    private void addMarkerList(List<LatLng> places, int resource, int width, int height) {
+        for (LatLng place : places) {
+            Marker marker = new Marker();
+            marker.setPosition(place);
+            marker.setMap(naverMap);
+            marker.setIcon(OverlayImage.fromResource(resource));
+
+            // 마커 크기 조정
+            marker.setWidth(width);   // 너비 설정
+            marker.setHeight(height); // 높이 설정
+
+            // 리스트에 추가
+            markers.add(marker); // 추가된 마커를 리스트에 저장
+        }
+    }
+
+    // 모든 마커를 반환하는 메서드
+    public List<Marker> getAllMarkers() {
+        return markers;
     }
 
     public void addMarkers() {
@@ -59,20 +84,27 @@ public class MarkerManager {
         // 마커 추가
         addMarkerList(toilet, R.drawable.toliet_marker, 150, 150); // 크기 조절 예시
         addMarkerList(information, R.drawable.information_marker, 150, 150); // 크기 조절 예시
-        addMarkerList(store, R.drawable.information_marker, 150, 150); // 크기 조절 예시
+        addMarkerList(store, R.drawable.store_marker, 150, 150); // 크기 조절 예시
     }
 
-    private void addMarkerList(List<LatLng> places, int resource, int width, int height) {
-        for (LatLng place : places) {
-            Marker marker = new Marker();
-            marker.setPosition(place);
-            marker.setMap(naverMap);
-            marker.setIcon(OverlayImage.fromResource(resource));
+    // 사용자 위치와 30m 반경 내에 있는 마커의 정보를 반환
+    public List<String> getNearbyMarkers(LatLng userLocation, double radiusMeters) {
+        List<String> nearbyMarkers = new ArrayList<>();
 
-            // 마커 크기 조정
-            marker.setWidth(width);   // 너비 설정
-            marker.setHeight(height); // 높이 설정
+        for (Marker marker : markers) {
+            double distance = getDistance(userLocation, marker.getPosition());
+            if (distance <= radiusMeters) {
+                nearbyMarkers.add("위치: " + marker.getPosition().latitude + ", " + marker.getPosition().longitude);
+            }
         }
 
+        return nearbyMarkers;
+    }
+
+    // 두 지점 간의 거리 계산 (미터 단위)
+    private double getDistance(LatLng point1, LatLng point2) {
+        float[] results = new float[1];
+        Location.distanceBetween(point1.latitude, point1.longitude, point2.latitude, point2.longitude, results);
+        return results[0]; // 미터 단위로 반환
     }
 }

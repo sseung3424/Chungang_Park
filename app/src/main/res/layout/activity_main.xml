@@ -4,7 +4,63 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- 지도 프래그먼트를 위한 영역 -->
+    <FrameLayout
+        android:id="@+id/map_fragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- 길찾기 버튼 -->
+    <Button
+        android:id="@+id/find_path_button"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/nearby_info_button"
+        android:text="길찾기"
+        android:textColor="#000000"
+        android:background="@drawable/rounded_button_shape"
+        android:src="@drawable/pathfinder"
+        android:scaleType="centerInside"
+        android:contentDescription="길찾기" />
+
+    <!-- 주변 정보 안내 버튼 -->
+    <Button
+        android:id="@+id/nearby_info_button"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="안내"
+        android:textColor="#000000"
+        android:background="@drawable/rounded_button_shape"
+        android:src="@drawable/search"
+        android:scaleType="centerInside"
+        android:contentDescription="안내" />
+
+    <!-- 공원 선택 버튼 (FrameLayout 밖으로 이동) -->
+    <Button
+        android:id="@+id/select_park_button"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="공원 선택"
+        android:textColor="#000000"
+        android:backgroundTint="#FFFFFF" />
 
     <!-- 위치 추적 모드 선택 옵션 -->
     <HorizontalScrollView
@@ -19,37 +75,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
+            <!-- 위치 추적 옵션을 추가 -->
         </LinearLayout>
-
     </HorizontalScrollView>
-
-    <Button
-        android:id="@+id/select_park_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="한강 공원 목록"
-        app:layout_constraintTop_toBottomOf="@id/options"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"/>
-    <!-- 지도 프래그먼트를 위한 영역 -->
-    <FrameLayout
-        android:id="@+id/map_fragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/select_park_button"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <Button
-        android:id="@+id/find_path_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="길찾기"
-        tools:layout_editor_absoluteX="149dp"
-        tools:layout_editor_absoluteY="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
