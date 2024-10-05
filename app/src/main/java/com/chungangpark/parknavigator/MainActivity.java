@@ -73,12 +73,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final LatLng YEUIDO_PARK = new LatLng(37.5283169, 126.9328034); // 여의도 한강 공원 좌표
     private static final LatLng MANGWON_PARK = new LatLng(37.5580, 126.9027);
     private static final LatLng JAMSIL_PARK = new LatLng(37.5100, 127.1000); // 잠실 한강 공원 좌표
-    private static final LatLng DESTINATION = new LatLng(37.51925551, 126.94159282); // 사용자가 지정한 목적지
 
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private PathFinder pathFinder;
     MarkerManager markerManager = new MarkerManager(naverMap);
+    private boolean isNavigating = false;  // 길찾기 상태를 추적하는 플래그
+    private LinearLayout cancelNavigationButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,10 +99,32 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LinearLayout nearbyInfoButton = findViewById(R.id.btn_nearby_info);
         nearbyInfoButton.setOnClickListener(v -> showNearbyInfo());
 
+        // 취소 버튼 찾기
+        cancelNavigationButton = findViewById(R.id.btn_cancel_navigation);
+
+        // 취소 버튼 클릭 이벤트
+        cancelNavigationButton.setOnClickListener(v -> {
+            cancelNavigation();  // 길찾기 취소
+        });
 
         // 길찾기 버튼 설정
         LinearLayout findPathButton = findViewById(R.id.btn_find_path);
         findPathButton.setEnabled(false);  // 초기에는 비활성화 상태
+
+        findPathButton.setOnClickListener(v -> {
+                    if (naverMap == null || markerManager == null) {
+                        Toast.makeText(MainActivity.this, "길찾기 기능이 아직 초기화되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (isNavigating) {
+                        // 길찾기 중이면 취소 처리
+                        cancelNavigation();
+                    } else {
+                        // 길찾기 대화창 표시
+                        showFindPathDialog();
+                    }
+                });
 
         // 길찾기 버튼을 눌렀을 때 동작 정의
         findPathButton.setOnClickListener(v -> {
@@ -266,6 +289,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 목적지 설정 및 경로 안내 시작 (PathFinder의 startNavigation 호출)
         pathFinder.startNavigation(userLocation, braillePolyline, destination);
         Toast.makeText(this, "목적지로 안내를 시작합니다.", Toast.LENGTH_SHORT).show();
+
+        // 길찾기 중 상태로 설정
+        isNavigating = true;
+        Toast.makeText(this, "목적지로 안내를 시작합니다.", Toast.LENGTH_SHORT).show();
+
+        // 취소 버튼 보이기
+        cancelNavigationButton.setVisibility(View.VISIBLE);
+    }
+
+    // 길찾기 취소
+    private void cancelNavigation() {
+        pathFinder.shutdownTTS();  // TTS 종료
+
+        isNavigating = false;  // 길찾기 상태 초기화
+        Toast.makeText(this, "길찾기가 취소되었습니다.", Toast.LENGTH_SHORT).show();
+
+        // 취소 버튼 숨기기
+        cancelNavigationButton.setVisibility(View.GONE);
     }
 
     private LatLng getUserCurrentLocation() {
