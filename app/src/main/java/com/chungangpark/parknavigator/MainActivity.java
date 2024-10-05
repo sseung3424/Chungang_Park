@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.location.Location;
+import android.widget.LinearLayout;
 import android.widget.Toast; // Toast 추가
 import java.io.OutputStream;
 import java.io.IOException;
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         // 한강 공원 목록 버튼 설정
-        Button selectParkButton = findViewById(R.id.select_park_button);
+        LinearLayout selectParkButton = findViewById(R.id.btn_select_park);
         selectParkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,12 +95,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         // '주변 정보 안내' 버튼 설정
-        Button nearbyInfoButton = findViewById(R.id.nearby_info_button);
+        LinearLayout nearbyInfoButton = findViewById(R.id.btn_nearby_info);
         nearbyInfoButton.setOnClickListener(v -> showNearbyInfo());
 
 
         // 길찾기 버튼 비활성화
-        Button findPathButton = findViewById(R.id.find_path_button);
+        LinearLayout findPathButton = findViewById(R.id.btn_find_path);
         findPathButton.setEnabled(false);  // 초기에는 비활성화 상태
 
         // ActionBar 설정 (위치 추적 모드를 위한)
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
 
         // findPathButton 활성화
-        Button findPathButton = findViewById(R.id.find_path_button);
+        LinearLayout findPathButton = findViewById(R.id.btn_find_path);
         findPathButton.setEnabled(true); // 지도와 PathFinder가 준비되면 버튼 활성화
 
         // 선택한 공원으로 지도 이동
