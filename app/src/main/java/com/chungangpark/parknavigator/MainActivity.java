@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final LatLng YEUIDO_PARK = new LatLng(37.5283169, 126.9328034); // 여의도 한강 공원 좌표
     private static final LatLng MANGWON_PARK = new LatLng(37.5580, 126.9027);
     private static final LatLng JAMSIL_PARK = new LatLng(37.5100, 127.1000); // 잠실 한강 공원 좌표
+    private static final LatLng DESTINATION = new LatLng(37.51925551, 126.94159282); // 사용자가 지정한 목적지
 
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
@@ -104,9 +105,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // FusedLocationSource 설정 (위치 권한 요청)
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
-        // 잠실 공원 좌표
 
-        // 길찾기 버튼 클릭 이벤트
+        // 길찾기 버튼을 눌렀을 때 동작 정의
         findPathButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,15 +116,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
                 LatLng userLocation = getUserCurrentLocation();  // 사용자 위치 가져오기
-                LatLng destination = new LatLng(37.51925551, 126.94159282); // 임시로 목적지 좌표 넣어둠 !!수정 필요!!
+                PolylineOverlay polyline = getBraillePolyline(); // 점자블록 Polyline 가져오기
 
-                if (userLocation != null) {
-                    pathFinder.navigateToDestination(userLocation, destination);
+                if (userLocation != null && polyline != null) {
+                    // 점자블록을 따라 안내
+                    pathFinder.navigateAlongPolyline(userLocation, polyline, DESTINATION);
                 } else {
-                    Toast.makeText(MainActivity.this, "사용자의 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "경로를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
 
         // MapFragment 가져오기
         MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);

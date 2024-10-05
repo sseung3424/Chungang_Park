@@ -16,6 +16,7 @@ public class PathFinder implements TextToSpeech.OnInitListener {
     private Context context;
     private NaverMap naverMap;
     private TextToSpeech textToSpeech;
+    private static final double DESTINATION_THRESHOLD_DISTANCE = 20; // 목적지까지 남은 거리가 20미터 이하일 때 안내
 
     // 생성자
     public PathFinder(Context context, NaverMap naverMap) {
@@ -39,6 +40,19 @@ public class PathFinder implements TextToSpeech.OnInitListener {
         return closestPoint;
     }
 
+    // Polyline 상의 다음 지점을 가져오는 함수
+    private LatLng getNextPointOnPolyline(LatLng userLocation, PolylineOverlay polyline) {
+        List<LatLng> polylinePoints = polyline.getCoords();
+        LatLng closestPoint = getClosestPointOnPolyline(userLocation, polyline);
+        int closestIndex = polylinePoints.indexOf(closestPoint);
+
+        // 다음 지점이 있으면 반환
+        if (closestIndex != -1 && closestIndex < polylinePoints.size() - 1) {
+            return polylinePoints.get(closestIndex + 1);
+        }
+        return null;
+    }
+
     // 두 좌표 간의 거리 계산 함수
     private double getDistance(LatLng point1, LatLng point2) {
         double earthRadius = 6371e3; // 지구 반지름, 미터
@@ -56,18 +70,39 @@ public class PathFinder implements TextToSpeech.OnInitListener {
     }
 
     // 사용자 위치에서 Polyline을 따라가는 경로 찾기
-    public void navigateAlongPolyline(LatLng userLocation, PolylineOverlay polyline) {
+    public void navigateAlongPolyline(LatLng userLocation, PolylineOverlay polyline, LatLng destination) {
+        List<LatLng> polylinePoints = polyline.getCoords();
         LatLng closestPoint = getClosestPointOnPolyline(userLocation, polyline);
+        LatLng nextPoint = getNextPointOnPolyline(userLocation, polyline);
 
-        if (closestPoint != null) {
+        double distanceToDestination = getDistance(userLocation, destination);
+
+        if (distanceToDestination <= DESTINATION_THRESHOLD_DISTANCE) {
+            // 목적지까지의 거리가 가까워지면 마지막 안내
+            navigateToDestination(userLocation, destination);
+        } else if (closestPoint != null && nextPoint != null) {
+            // 사용자가 이동할 방향 계산 (다음 점자블록으로)
+            double bearingToNextPoint = calculateBearing(closestPoint, nextPoint);
+            double userBearing = naverMap.getLocationOverlay().getBearing(); // 사용자가 보고 있는 방향
+
+            double direction = bearingToNextPoint - userBearing;
+            if (direction < 0) {
+                direction += 360; // 방향 각도는 0 ~ 360 사이여야 함
+            }
+
+            Log.d("Direction", "Calculated direction: " + direction); // 로그로 확인
+
+            String directionMessage = getDirectionMessage(direction); // 방향 안내 메시지 생성
+            speakDirection(directionMessage);
+
+            // 다음 점자블록까지의 거리 안내
+            double distanceToNextBlock = getDistance(closestPoint, nextPoint);
+            speakDirection("다음 점자블록까지의 거리는 약 " + Math.round(distanceToNextBlock) + "미터입니다.");
+
             // Polyline 상의 가장 가까운 지점으로 카메라 이동
-            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(closestPoint).zoomTo(17);
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(nextPoint).zoomTo(17);
             naverMap.moveCamera(cameraUpdate);
 
-            // 음성 안내 추가
-            String directionMessage = "경로를 따라 이동 중입니다. 현재 위치는 " +
-                    "위도 " + closestPoint.latitude + ", 경도 " + closestPoint.longitude + "입니다.";
-            speakDirection(directionMessage);
         } else {
             speakDirection("경로를 찾을 수 없습니다.");
         }
@@ -86,7 +121,6 @@ public class PathFinder implements TextToSpeech.OnInitListener {
 
         return (Math.toDegrees(Math.atan2(x, y)) + 360) % 360; // 북쪽을 기준으로 각도 반환
     }
-
 
     private boolean isTTSInitialized = false;
 
@@ -151,17 +185,6 @@ public class PathFinder implements TextToSpeech.OnInitListener {
         } else {
             Log.e("TTS", "TTS가 초기화되지 않았습니다.");
         }
-    }
-
-    // 경로 찾기 실행
-    public void findPath(LatLng startLatLng, LatLng endLatLng) {
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(startLatLng).zoomTo(15);
-        naverMap.moveCamera(cameraUpdate);
-
-        String pathMessage = "출발지에서 경로를 따라 잠실 공원까지 이동합니다.";
-        speakDirection(pathMessage);
-
-        // 실제 Polyline을 사용하여 경로 안내 로직을 추가할 수 있음
     }
 
     // TextToSpeech 종료
