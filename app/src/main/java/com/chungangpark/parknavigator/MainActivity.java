@@ -143,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // 점자 블록 매니저 생성 및 점자 블록 추가
-        BrailleBlockManager brailleBlockManager = new BrailleBlockManager();
-        brailleBlockManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
+        BrailleBlockManager brailleBlockManager = new BrailleBlockManager(this);
+        brailleBlockManager.addBrailleBlockOnMap(naverMap);  // 점자 블록을 지도에 추가
     }
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {
