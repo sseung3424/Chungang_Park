@@ -16,6 +16,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import java.util.UUID;
+import com.naver.maps.map.overlay.Marker;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BrailleBlockManager {
     private boolean wasNearObstacle = false;
@@ -32,6 +35,8 @@ public class BrailleBlockManager {
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
     private final LatLng obstacle2 = new LatLng(37.52680387, 126.93437803);
     private final LatLng obstacle_test = new LatLng(37.51986467, 127.09827954);
+    // 점자블록을 나타내는 점(Point) 리스트
+    private List<LatLng> brailleBlockPoints = new ArrayList<>();
     // 생성자에서 좌표와 case 번호를 매핑
     public BrailleBlockManager(Context context, OutputStream outputStream) {
         this.context = context;
@@ -74,8 +79,15 @@ public class BrailleBlockManager {
         // 장애물 좌표 case 6으로 추가
         coordinateCases.put(obstacle1, 6);
         coordinateCases.put(obstacle2, 6);
+
+        // test 좌표 추가
+// 점자블록 좌표를 추가합니다. (예시로 좌표 몇 개 추가)
+        brailleBlockPoints.add(new LatLng(37.52749844, 126.93282825));
+        brailleBlockPoints.add(new LatLng(37.52713827, 126.93239991));
+        brailleBlockPoints.add(new LatLng(37.52673475, 126.93369419));
     }
     public BrailleBlockManager(Context context){this.context = context;}
+
     // 선형 점자블록 추가 함수
     private void addLinearBrailleBlock(NaverMap naverMap, LatLng startPoint, LatLng endPoint) {
         PolylineOverlay polyline = new PolylineOverlay();
@@ -106,6 +118,7 @@ public class BrailleBlockManager {
         circle.setOutlineWidth(3); // 테두리 두께
         circle.setMap(naverMap);
     }
+
     public void addBrailleBlockonMap(@NonNull NaverMap naverMap) {
 
         // 선형 점자블록 추가
@@ -186,28 +199,35 @@ public class BrailleBlockManager {
         addObstacleCircle(naverMap, obstacle2);
         addObstacleCircle(naverMap, obstacle_test);
 
+
         // 화장실 위치
         // 37.52623836, 126.93364102
         // 위치 변경 리스너 추가
         naverMap.addOnLocationChangeListener(location -> {
             LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
 
-            // 사용자가 선형 또는 점형 점자블록 위에 있는지 확인
+           /* // 사용자가 선형 또는 점형 점자블록 위에 있는지 확인
             boolean isOnLinearBlock = bbd.isUserOnBrailleBlocks(userPosition); // 선형 점자블록 위에 있는지 확인
             boolean isOnDotBlock = bbd.isUserOnDotBrailleBlock(userPosition); // 점형 점자블록 위에 있는지 확인
-            boolean isOnBrailleBlock = isOnLinearBlock || isOnDotBlock; // 둘 중 하나라도 true이면 점자블록 위에 있음
-
+            boolean isOnBrailleBlock = isOnLinearBlock || isOnDotBlock; // 둘 중 하나라도 true이면 점자블록 위에 있음*/
+// 통합된 점자블록 확인 함수 호출
+            boolean isOnBrailleBlock = bbd.isUserOnAnyBrailleBlock(userPosition);
             // 4. 장애물 앞에 있을 때 진동 (테스트용)
             if (isNearObstacle(userPosition)) {
                 Toast.makeText(context, "장애물 앞입니다.", Toast.LENGTH_SHORT).show();
             }
-            // 선형 점자블록 위에 있는 경우에는 점형 점자블록 확인 필요 없음 (테스트용)
-            if (isOnBrailleBlock) {
-                wasOnBrailleBlock = true;
-            } else {
-                // 점자블록을 벗어난 경우
-                Toast.makeText(context, "선형 점자블록을 벗어났습니다", Toast.LENGTH_SHORT).show();
-            }
+
+            /*// 가장 가까운 점을 찾음
+            LatLng nearestPoint = bbd.getNearestBrailleBlock(userPosition, brailleBlockPoints);
+
+            // 가장 가까운 점과의 거리를 계산
+            double distanceToNearestPoint = bbd.distance(userPosition, nearestPoint);
+            double thresholdDistance = 2.0; // 2미터 이상 떨어지면 경고
+
+            // 사용자가 일정 거리 이상 떨어졌을 때 알림
+            if (distanceToNearestPoint > thresholdDistance) {
+                Toast.makeText(context, "점자블록에서 벗어났습니다", Toast.LENGTH_SHORT).show();
+            }*/
 
             // 1. 장애물에 근접했는지 확인 (우선순위 1)
             /*boolean nearObstacle = isNearObstacle(userPosition);
@@ -219,27 +239,47 @@ public class BrailleBlockManager {
                 // 장애물에서 벗어났을 때 상태 업데이트
                 wasNearObstacle = false;
             }*/
-            if (isNearObstacle(userPosition)) {
+            /*if (isNearObstacle(userPosition)) {
                 handleCase(6);  // case 6: 장애물에 도달했을 때
             }
 
             // 2. 점자블록에서 벗어났는지 확인 (우선순위 2)
             if (!isOnBrailleBlock) {
                 handleCase(5);  // case 5: 점자블록에서 벗어났을 때
-            }
+            }*/
 
-            // 3. 선형 점자블록에서 점형 점자블록으로 이동했는지 확인 (우선순위 3)
+           /* // 3. 선형 점자블록에서 점형 점자블록으로 이동했는지 확인 (우선순위 3)
             if (isOnLinearBlock && !wasOnLinearBlock) {
                 handleCaseBasedOnProximity(userPosition);  // 1m 범위 내에서 가장 가까운 점자블록 처리
-            }
+            }*/
 
-
-
-            // 5. 상태 업데이트: 현재 점자블록 상태를 기록
-            wasOnBrailleBlock = isOnBrailleBlock;
-            wasOnLinearBlock = isOnLinearBlock;
         });
 
+    }
+    // 지도에 점(마커)을 추가하는 함수
+    public void addBrailleBlockPointsOnMap(@NonNull NaverMap naverMap) {
+        for (LatLng point : brailleBlockPoints) {
+            Marker marker = new Marker();
+            marker.setPosition(point); // 각 점의 위치
+            marker.setMap(naverMap); // 마커를 지도에 추가
+        }
+
+        // 위치 변경 리스너 추가
+        naverMap.addOnLocationChangeListener(location -> {
+            LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
+
+            // 가장 가까운 점을 찾음
+            LatLng nearestPoint = bbd.getNearestBrailleBlock(userPosition, brailleBlockPoints);
+
+            // 가장 가까운 점과의 거리를 계산
+            double distanceToNearestPoint = bbd.distance(userPosition, nearestPoint);
+            double thresholdDistance = 2.0; // 2미터 이상 떨어지면 경고
+
+            // 사용자가 일정 거리 이상 떨어졌을 때 알림
+            if (distanceToNearestPoint > thresholdDistance) {
+                Toast.makeText(context, "점자블록에서 벗어났습니다", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     // 장애물에 도달했는지 확인하는 함수
     private boolean isNearObstacle(LatLng userPosition) {
@@ -248,7 +288,7 @@ public class BrailleBlockManager {
               // !!!!!!!!여기 나중에 꼭 obstacle_2로 바꿀 것!!!!!!!!!!!!!
                 (bbd.distance(userPosition, obstacle_test) < thresholdDistance);
     }
-      // 2. 사용자가 점자블록에 근접했는지 확인하는 로직에 범위 1m를 설정하여 신호가 작동하도록 수정
+      /*// 2. 사용자가 점자블록에 근접했는지 확인하는 로직에 범위 1m를 설정하여 신호가 작동하도록 수정
     private void handleCaseBasedOnProximity(LatLng userPosition) {
         LatLng nearestCoordinate = bbd.getNearestBrailleBlock(userPosition);
         if (nearestCoordinate != null) {
@@ -259,7 +299,7 @@ public class BrailleBlockManager {
                 handleCase(caseNumber);  // case 번호에 따른 동작 처리
             }
         }
-    }
+    }*/
     // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
     public void sendTestCommandToArduino() {
         try {

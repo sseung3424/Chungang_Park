@@ -10,7 +10,7 @@ public class BrailleBlockDetector {
     NavigationManager nm = new NavigationManager();
     // 클래스에 점자블록 리스트 추가
     private List<PolylineOverlay> brailleBlocks = new ArrayList<>();
-    // 점자블록 경계를 벗어났는지 확인하는 함수 추가
+    /*// 점자블록 경계를 벗어났는지 확인하는 함수 추가
     public boolean isUserOnBrailleBlocks(LatLng userPosition) {
         for (PolylineOverlay block : brailleBlocks) {
             if (nm.getDistanceFromPolyline(block, userPosition) <= block.getWidth() / 5.0) {
@@ -23,7 +23,7 @@ public class BrailleBlockDetector {
     }
 
     // 점형 점자블록 위에 사용자가 있는지 확인하는 함수 추가
-    public boolean isUserOnDotBrailleBlock(LatLng userPosition) {
+    public boolean isUserOnDotBrailleBlock(LatLng userPosition) {]
         for (PolylineOverlay dotBlock : brailleBlocks) {
             // 점형 점자블록인 경우에만 체크
             if (dotBlock.getColor() == 0xFFFF00A5) { // 핑크색으로 식별
@@ -33,21 +33,31 @@ public class BrailleBlockDetector {
             }
         }
         return false; // 사용자가 점형 점자블록 위에 없음
+    }*/
+    public boolean isUserOnAnyBrailleBlock(LatLng userPosition) {
+        for (PolylineOverlay block : brailleBlocks) {
+            List<LatLng> blockPoints = block.getCoords();
+            for (int i = 0; i < blockPoints.size() - 1; i++) {
+                // 사용자와 선분 간의 거리를 계산
+                double distanceToSegment = nm.distanceToLineSegment(userPosition, blockPoints.get(i), blockPoints.get(i + 1));
+                if (distanceToSegment <= block.getWidth() / 2.0) {
+                    return true;  // 선형 점자블록 위에 있음
+                }
+            }
+        }
+        return false;  // 점자블록 경계 밖에 있음
     }
 
-    // 특정 좌표를 기준으로 가장 가까운 점자블록 좌표를 반환하는 함수
-    public LatLng getNearestBrailleBlock(LatLng position) {
+    // 특정 위치에서 가장 가까운 점을 찾는 함수
+    public LatLng getNearestBrailleBlock(LatLng userPosition, List<LatLng> brailleBlockPoints) {
         LatLng nearestPoint = null;
         double minDistance = Double.MAX_VALUE;
 
-        for (PolylineOverlay block : brailleBlocks) {
-            List<LatLng> coords = block.getCoords();
-            for (LatLng coord : coords) {
-                double distance = nm.distance(position, coord);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    nearestPoint = coord;
-                }
+        for (LatLng point : brailleBlockPoints) {
+            double distance = distance(userPosition, point);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestPoint = point;
             }
         }
         return nearestPoint;
