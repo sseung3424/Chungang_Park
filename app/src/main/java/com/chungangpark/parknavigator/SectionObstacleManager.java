@@ -12,14 +12,11 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 import com.naver.maps.map.overlay.CircleOverlay;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import java.util.UUID;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrailleBlockManager {
+public class SectionObstacleManager {
     private boolean wasNearObstacle = false;
     private Context context;
     private final BrailleBlockDetector bbd = new BrailleBlockDetector();
@@ -36,7 +33,7 @@ public class BrailleBlockManager {
     private final LatLng obstacle_test = new LatLng(37.52001523, 127.09856174);
     // 생성자에서 좌표와 case 번호를 매핑
 
-    public BrailleBlockManager(Context context, OutputStream outputStream) {
+    public SectionObstacleManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
 
@@ -79,7 +76,7 @@ public class BrailleBlockManager {
         // 테스트 점자블록 좌표 추가
         addBrailleBlockCoordinates();
     }
-    public BrailleBlockManager(Context context){this.context = context;}
+    public SectionObstacleManager(Context context){this.context = context;}
     private void addBrailleBlockCoordinates() {
         brailleBlockPoints.add(new LatLng(37.51999291, 127.09851956));
         brailleBlockPoints.add(new LatLng(37.52000368, 127.09853365));
