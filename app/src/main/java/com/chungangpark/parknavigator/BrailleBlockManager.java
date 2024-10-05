@@ -18,13 +18,14 @@ import android.bluetooth.BluetoothSocket;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
+
 public class BrailleBlockManager {
     private boolean wasNearObstacle = false;
     private Context context;
     private final BrailleBlockDetector bbd = new BrailleBlockDetector();
     private final ArduinoVibrationController avc = new ArduinoVibrationController();
     private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
-    private List<LatLng> brailleBlockPoints;
+    private List<LatLng> brailleBlockPoints= new ArrayList<>();;
     private boolean isUserNearBrailleBlock = false; // 사용자 상태를 추적하는 플래그
 
     // 좌표별로 case 번호를 지정하기 위한 Map 정의
@@ -38,9 +39,7 @@ public class BrailleBlockManager {
     public BrailleBlockManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
-        // 앱이 실행되면 바로 명령어 7번을 아두이노로 전송
-        sendTestCommandToArduino();
-        brailleBlockPoints = new ArrayList<>();
+
 
         // case 1
         coordinateCases.put(new LatLng(37.52749844, 126.93282825), 1);
@@ -78,14 +77,15 @@ public class BrailleBlockManager {
         coordinateCases.put(obstacle1, 6);
         coordinateCases.put(obstacle2, 6);
 
-        // 세 좌표를 점자블록 리스트에 추가(test 좌표)
+        // 테스트 점자블록 좌표 추가
+        addBrailleBlockCoordinates();
+    }
+    public BrailleBlockManager(Context context){this.context = context;}
+    private void addBrailleBlockCoordinates() {
         brailleBlockPoints.add(new LatLng(37.51999291, 127.09851956));
         brailleBlockPoints.add(new LatLng(37.52000368, 127.09853365));
         brailleBlockPoints.add(new LatLng(37.52001018, 127.09854337));
-
     }
-    public BrailleBlockManager(Context context){this.context = context;}
-
     // 선형 점자블록 추가 함수
     private void addLinearBrailleBlock(NaverMap naverMap, LatLng startPoint, LatLng endPoint) {
         PolylineOverlay polyline = new PolylineOverlay();
@@ -271,7 +271,7 @@ public class BrailleBlockManager {
     private boolean isNearObstacle(LatLng userPosition) {
         double thresholdDistance = 2.0; // 장애물 근처로 간주할 거리 기준(2m)
         return (distanceBetween(userPosition, obstacle1) < thresholdDistance) ||
-              // !!!!!!!!여기 나중에 꼭 obstacle_2로 바꿀 것!!!!!!!!!!!!!
+                // !!!!!!!!여기 나중에 꼭 obstacle_2로 바꿀 것!!!!!!!!!!!!!
                 (distanceBetween(userPosition, obstacle_test) < thresholdDistance);
     }
 
