@@ -16,10 +16,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import java.util.UUID;
-import com.naver.maps.map.overlay.Marker;
 import java.util.ArrayList;
 import java.util.List;
-import com.naver.maps.map.overlay.OverlayImage; // 마커 아이콘 관련
 public class BrailleBlockManager {
     private boolean wasNearObstacle = false;
     private Context context;
@@ -34,7 +32,7 @@ public class BrailleBlockManager {
     // 장애물 좌표 정의
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
     private final LatLng obstacle2 = new LatLng(37.52680387, 126.93437803);
-    private final LatLng obstacle_test = new LatLng(37.51986467, 127.09827954);
+    private final LatLng obstacle_test = new LatLng(37.52001523, 127.09856174);
     // 점자블록을 나타내는 점(Point) 리스트
     private List<LatLng> brailleBlockPoints = new ArrayList<>();
     // 생성자에서 좌표와 case 번호를 매핑
@@ -82,9 +80,9 @@ public class BrailleBlockManager {
 
         // test 좌표 추가
 // 점자블록 좌표를 추가합니다. (예시로 좌표 몇 개 추가)
-        brailleBlockPoints.add(new LatLng(37.52749844, 126.93282825));
-        brailleBlockPoints.add(new LatLng(37.52713827, 126.93239991));
-        brailleBlockPoints.add(new LatLng(37.52673475, 126.93369419));
+        brailleBlockPoints.add(new LatLng(37.51999291, 127.09851956));
+        brailleBlockPoints.add(new LatLng(37.52000368, 127.09853365));
+        brailleBlockPoints.add(new LatLng(37.52001018, 127.09854337));
     }
     public BrailleBlockManager(Context context){this.context = context;}
 
@@ -120,6 +118,7 @@ public class BrailleBlockManager {
     }
 
     public void addBrailleBlockonMap(@NonNull NaverMap naverMap) {
+
 
         // 선형 점자블록 추가
         addLinearBrailleBlock(naverMap, new LatLng(37.52709831, 126.93245824), new LatLng(37.52713827, 126.93239991));
@@ -194,6 +193,7 @@ public class BrailleBlockManager {
         addLinearBrailleBlock(naverMap, new LatLng(37.51991877, 127.09838230), new LatLng(37.51988407, 127.09831693));
         addDotBrailleBlock(naverMap, new LatLng(37.51988407, 127.09831693), new LatLng(37.51986467, 127.09827954));
 
+
         // 장애물 위치에 1m 반경의 원 추가
         addObstacleCircle(naverMap, obstacle1);
         addObstacleCircle(naverMap, obstacle2);
@@ -256,16 +256,16 @@ public class BrailleBlockManager {
         });
 
     }
-    // 지도에 점(마커)을 추가하는 함수
+    // 지도에 점자블록을 주황색 점으로 표시하는 함수
     public void addBrailleBlockPointsOnMap(@NonNull NaverMap naverMap) {
         for (LatLng point : brailleBlockPoints) {
-            Marker marker = new Marker();
-            marker.setPosition(point); // 각 점의 위치
-            // 마커를 주황색으로 설정
-            marker.setIcon(OverlayImage.fromResource(R.drawable.ic_marker_orange)); // 주황색 마커 이미지로 설정
-            marker.setWidth(60); // 마커 크기 설정
-            marker.setHeight(60); // 마커 크기 설정
-            marker.setMap(naverMap); // 마커를 지도에 추가
+            CircleOverlay circle = new CircleOverlay();
+            circle.setCenter(point);
+            circle.setRadius(1.0); // 반경 1m로 설정 (원하는 크기로 조정 가능)
+            circle.setColor(0x40FFA500); // 주황색 반투명 (0x40은 투명도, 뒤는 색상 코드)
+            circle.setOutlineColor(0xFFFFA500); // 주황색 테두리
+            circle.setOutlineWidth(3); // 테두리 두께
+            circle.setMap(naverMap); // 지도에 점을 추가
         }
 
         // 위치 변경 리스너 추가
@@ -362,4 +362,5 @@ public class BrailleBlockManager {
                 break;
         }
     }
+
 }
