@@ -11,15 +11,15 @@ public class BrailleBlockDetector {
     // 클래스에 점자블록 리스트 추가
     private List<PolylineOverlay> brailleBlocks = new ArrayList<>();
     // 점자블록 경계를 벗어났는지 확인하는 함수 추가
-    public boolean isUserOutsideBrailleBlocks(LatLng userPosition) {
+    public boolean isUserOnBrailleBlocks(LatLng userPosition) {
         for (PolylineOverlay block : brailleBlocks) {
-            if (nm.getDistanceFromPolyline(block, userPosition) <= block.getWidth() / 10.0) {
-                return false; //
+            if (nm.getDistanceFromPolyline(block, userPosition) <= block.getWidth() / 5.0) {
+                return true; //
 
-                // 점자블록 내에 있으면 false 반환
+                // 점자블록 내에 있으면 true 반환
             }
         }
-        return true; // 모든 점자블록 경계 밖에 있으면 true 반환
+        return false; // 모든 점자블록 경계 밖에 있으면 false 반환
     }
 
     // 점형 점자블록 위에 사용자가 있는지 확인하는 함수 추가
@@ -27,7 +27,7 @@ public class BrailleBlockDetector {
         for (PolylineOverlay dotBlock : brailleBlocks) {
             // 점형 점자블록인 경우에만 체크
             if (dotBlock.getColor() == 0xFFFF00A5) { // 핑크색으로 식별
-                if (nm.getDistanceFromPolyline(dotBlock, userPosition) <= dotBlock.getWidth() / 10.0) {
+                if (nm.getDistanceFromPolyline(dotBlock, userPosition) <= dotBlock.getWidth() / 5.0) {
                     return true; // 사용자가 점형 점자블록 위에 있음
                 }
             }

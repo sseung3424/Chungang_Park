@@ -193,7 +193,7 @@ public class BrailleBlockManager {
             LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
 
             // 사용자가 선형 또는 점형 점자블록 위에 있는지 확인
-            boolean isOnLinearBlock = !bbd.isUserOutsideBrailleBlocks(userPosition); // 선형 점자블록 위에 있는지 확인
+            boolean isOnLinearBlock = bbd.isUserOnBrailleBlocks(userPosition); // 선형 점자블록 위에 있는지 확인
             boolean isOnDotBlock = bbd.isUserOnDotBrailleBlock(userPosition); // 점형 점자블록 위에 있는지 확인
             boolean isOnBrailleBlock = isOnLinearBlock || isOnDotBlock; // 둘 중 하나라도 true이면 점자블록 위에 있음
 
@@ -201,8 +201,11 @@ public class BrailleBlockManager {
             if (isNearObstacle(userPosition)) {
                 Toast.makeText(context, "장애물 앞입니다.", Toast.LENGTH_SHORT).show();
             }
-            // 점자블록 경계를 벗어났는지 확인 (테스트용)
-            if (!isOnBrailleBlock) {
+            // 선형 점자블록 위에 있는 경우에는 점형 점자블록 확인 필요 없음 (테스트용)
+            if (isOnBrailleBlock) {
+                wasOnBrailleBlock = true;
+            } else {
+                // 점자블록을 벗어난 경우
                 Toast.makeText(context, "선형 점자블록을 벗어났습니다", Toast.LENGTH_SHORT).show();
             }
 
