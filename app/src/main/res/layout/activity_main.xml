@@ -67,6 +67,7 @@
             android:contentDescription="길찾기 이미지" />
 
         <TextView
+            android:id="@+id/btn_find_path_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"

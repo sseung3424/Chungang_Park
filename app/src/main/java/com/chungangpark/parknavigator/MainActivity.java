@@ -245,13 +245,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return results[0]; // 거리 반환 (미터 단위)
     }
 
-    // 목적지로 이동
     private void moveToDestination(LatLng destination) {
         CameraUpdate cameraUpdate = CameraUpdate.scrollTo(destination).zoomTo(17);
         naverMap.moveCamera(cameraUpdate);
 
-        // 목적지 설정 및 안내 호출
-        pathFinder.navigateToDestination(getUserCurrentLocation(), destination);
+        // 사용자 위치 가져오기
+        LatLng userLocation = getUserCurrentLocation();
+        if (userLocation == null) {
+            Toast.makeText(this, "현재 위치를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 점자블록 경로 가져오기
+        PolylineOverlay braillePolyline = getBraillePolyline();
+        if (braillePolyline == null) {
+            Toast.makeText(this, "점자 블록 경로를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 목적지 설정 및 경로 안내 시작 (PathFinder의 startNavigation 호출)
+        pathFinder.startNavigation(userLocation, braillePolyline, destination);
         Toast.makeText(this, "목적지로 안내를 시작합니다.", Toast.LENGTH_SHORT).show();
     }
 

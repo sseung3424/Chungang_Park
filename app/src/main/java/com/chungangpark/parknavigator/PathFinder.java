@@ -1,6 +1,7 @@
 package com.chungangpark.parknavigator;
 
 import android.content.Context;
+import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
@@ -84,6 +85,11 @@ public class PathFinder implements TextToSpeech.OnInitListener {
             // 사용자가 이동할 방향 계산 (다음 점자블록으로)
             double bearingToNextPoint = calculateBearing(closestPoint, nextPoint);
             double userBearing = naverMap.getLocationOverlay().getBearing(); // 사용자가 보고 있는 방향
+
+            // 사용자가 올바른 방향으로 보고 있는지 확인
+            if (isUserLookingInWrongDirection(bearingToNextPoint, userBearing)) {
+                speakDirection("올바른 방향이 아닙니다. 방향을 수정하세요.");
+            }
 
             double direction = bearingToNextPoint - userBearing;
             if (direction < 0) {
@@ -193,5 +199,27 @@ public class PathFinder implements TextToSpeech.OnInitListener {
             textToSpeech.stop();
             textToSpeech.shutdown();
         }
+    }
+
+    // 사용자 위치 및 방향을 주기적으로 체크하는 메서드 (예: 1초마다 호출)
+    public void startNavigation(LatLng userLocation, PolylineOverlay polyline, LatLng destination) {
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                navigateAlongPolyline(userLocation, polyline, destination); // 경로 안내 업데이트
+                handler.postDelayed(this, 1000); // 1초마다 업데이트
+            }
+        };
+
+        handler.post(runnable); // 처음 실행
+    }
+
+    // 사용자가 잘못된 방향을 보고 있는지 확인
+    private boolean isUserLookingInWrongDirection(double requiredDirection, double userDirection) {
+        double directionDifference = Math.abs(requiredDirection - userDirection);
+
+        // 각도가 30도 이상 차이 나면 잘못된 방향
+        return directionDifference > 30;
     }
 }
