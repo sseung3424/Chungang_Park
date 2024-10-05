@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (userLocation != null && markerManager != null) {
             List<String> nearbyLocations = markerManager.getNearbyMarkers(userLocation, 30); // 30m 반경 내 마커들 가져오기
             if (nearbyLocations.isEmpty()) {
-                Toast.makeText(this, "주변 30m 내에 위치가 없습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "주변 30m 내에 안내할 장소가 없습니다.", Toast.LENGTH_SHORT).show();
             } else {
                 for (String location : nearbyLocations) {
                     Toast.makeText(this, location + "가(이) 30m 내에 있습니다.", Toast.LENGTH_SHORT).show();
