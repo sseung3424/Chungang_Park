@@ -7,6 +7,19 @@ import com.naver.maps.map.overlay.PolylineOverlay;
 import com.naver.maps.geometry.LatLng;
 
 // 블루투스 관련 라이브러리 임포트 확인
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.location.Location;
+import android.widget.LinearLayout;
+import android.widget.Toast; // Toast 추가
+import java.io.OutputStream;
+import java.io.IOException;
+import java.util.ArrayList; // ArrayList 추가
+import java.util.List; // List 추가
+import java.util.UUID; // UUID 추가
+
         import android.widget.Toast; // Toast 추가
 
         import java.util.ArrayList; // ArrayList 추가
@@ -47,18 +60,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
+    private PathFinder pathFinder;
+    MarkerManager markerManager = new MarkerManager(naverMap);
+    private boolean isNavigating = false;  // 길찾기 상태를 추적하는 플래그
+    private LinearLayout cancelNavigationButton;
     private Animator animator;
     private ObstacleManager ObstacleManager;
     private BrailleBlockManager brailleBlockManager;
     private SectionManager sectionManager;
-
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 // SectionManager 인스턴스 생성
         // 한강 공원 목록 버튼 설정
-        Button selectParkButton = findViewById(R.id.select_park_button);
+        LinearLayout selectParkButton = findViewById(R.id.btn_select_park);
         selectParkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,12 +83,47 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        // ActionBar 설정 (위치 추적 모드를 위한)
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
-        }
+        // '주변 정보 안내' 버튼 설정
+        LinearLayout nearbyInfoButton = findViewById(R.id.btn_nearby_info);
+        nearbyInfoButton.setOnClickListener(v -> showNearbyInfo());
+
+        // 취소 버튼 찾기
+        cancelNavigationButton = findViewById(R.id.btn_cancel_navigation);
+
+        // 취소 버튼 클릭 이벤트
+        cancelNavigationButton.setOnClickListener(v -> {
+            cancelNavigation();  // 길찾기 취소
+        });
+
+        // 길찾기 버튼 설정
+        LinearLayout findPathButton = findViewById(R.id.btn_find_path);
+        findPathButton.setEnabled(false);  // 초기에는 비활성화 상태
+
+        findPathButton.setOnClickListener(v -> {
+                    if (naverMap == null || markerManager == null) {
+                        Toast.makeText(MainActivity.this, "길찾기 기능이 아직 초기화되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (isNavigating) {
+                        // 길찾기 중이면 취소 처리
+                        cancelNavigation();
+                    } else {
+                        // 길찾기 대화창 표시
+                        showFindPathDialog();
+                    }
+                });
+
+        // 길찾기 버튼을 눌렀을 때 동작 정의
+        findPathButton.setOnClickListener(v -> {
+            if (naverMap == null || markerManager == null) {
+                Toast.makeText(MainActivity.this, "길찾기 기능이 아직 초기화되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 길찾기 대화창 표시
+            showFindPathDialog();
+        });
 
         // FusedLocationSource 설정 (위치 권한 요청)
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
@@ -85,13 +137,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // 지도 초기화
         mapFragment.getMapAsync(this);
-
-        /*// 블루투스 설정 함수 호출
-        setupBluetooth();*/
     }
-
-    // 클래스에 점자블록 리스트 추가
-    public static List<PolylineOverlay> brailleBlocks = new ArrayList<>();
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
@@ -102,6 +148,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
 
+        // 마커 매니저 생성 및 마커 추가
+        markerManager.addMarkers();
+
+        // PathFinder 객체 초기화
+        pathFinder = new PathFinder(this, naverMap);  // 여기에 PathFinder 초기화
+
         // 위치 오버레이 설정
         LocationOverlay locationOverlay = naverMap.getLocationOverlay();
         locationOverlay.setVisible(true);
@@ -111,6 +163,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 위치 추적 설정
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.NoFollow);
+
+        // findPathButton 활성화
+        LinearLayout findPathButton = findViewById(R.id.btn_find_path);
+        findPathButton.setEnabled(true); // 지도와 PathFinder가 준비되면 버튼 활성화
 
         // 선택한 공원으로 지도 이동
         String parkName = getIntent().getStringExtra("park_name");
@@ -128,6 +184,152 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         sectionManager = new SectionManager(this);
         sectionManager.addSectiononMap(naverMap);
     }
+
+    // 길찾기 선택 다이얼로그 표시
+    private void showFindPathDialog() {
+        final String[] options = {"화장실", "안내소", "매점"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("길찾기 옵션 선택")
+                .setItems(options, (dialog, which) -> {
+                    LatLng userLocation = getUserCurrentLocation();  // 사용자 위치 가져오기
+                    if (userLocation == null) {
+                        Toast.makeText(MainActivity.this, "현재 위치를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    LatLng destination = null;
+
+                    switch (which) {
+                        case 0: // 화장실 선택
+                            destination = findNearestLocation(userLocation, markerManager.getToiletMarkers());
+                            break;
+                        case 1: // 안내소 선택
+                            destination = findNearestLocation(userLocation, markerManager.getInformationMarkers());
+                            break;
+                        case 2: // 매점 선택
+                            destination = findNearestLocation(userLocation, markerManager.getStoreMarkers());
+                            break;
+                    }
+
+                    if (destination != null) {
+                        moveToDestination(destination);
+                    } else {
+                        Toast.makeText(MainActivity.this, "목적지를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
+    }
+
+    // 클래스에 점자블록 리스트 추가
+    public static List<PolylineOverlay> brailleBlocks = new ArrayList<>();
+
+    // 주변 정보 안내 버튼을 눌렀을 때 호출되는 메서드
+    private void showNearbyInfo() {
+        LatLng userLocation = getUserCurrentLocation(); // 사용자의 현재 위치 가져오기
+        if (userLocation != null && markerManager != null) {
+            List<String> nearbyLocations = markerManager.getNearbyMarkers(userLocation, 30); // 30m 반경 내 마커들 가져오기
+            if (nearbyLocations.isEmpty()) {
+                Toast.makeText(this, "주변 30m 내에 안내할 장소가 없습니다.", Toast.LENGTH_SHORT).show();
+            } else {
+                for (String location : nearbyLocations) {
+                    Toast.makeText(this, location + "가(이) 30m 내에 있습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            Toast.makeText(this, "현재 위치를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 가장 가까운 위치 찾기
+    private LatLng findNearestLocation(LatLng userLocation, List<Marker> markers) {
+        LatLng closestLocation = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (Marker marker : markers) {
+            double distance = getDistance(userLocation, marker.getPosition());
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestLocation = marker.getPosition();
+            }
+        }
+        return closestLocation;
+    }
+
+    // 두 지점 간의 거리 계산 (미터 단위)
+    private double getDistance(LatLng point1, LatLng point2) {
+        float[] results = new float[1];
+        Location.distanceBetween(point1.latitude, point1.longitude, point2.latitude, point2.longitude, results);
+        return results[0]; // 거리 반환 (미터 단위)
+    }
+
+    private void moveToDestination(LatLng destination) {
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(destination).zoomTo(17);
+        naverMap.moveCamera(cameraUpdate);
+
+        // 사용자 위치 가져오기
+        LatLng userLocation = getUserCurrentLocation();
+        if (userLocation == null) {
+            Toast.makeText(this, "현재 위치를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 점자블록 경로 가져오기
+        PolylineOverlay braillePolyline = getBraillePolyline();
+        if (braillePolyline == null) {
+            Toast.makeText(this, "점자 블록 경로를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 목적지 설정 및 경로 안내 시작 (PathFinder의 startNavigation 호출)
+        pathFinder.startNavigation(userLocation, braillePolyline, destination);
+        Toast.makeText(this, "목적지로 안내를 시작합니다.", Toast.LENGTH_SHORT).show();
+
+        // 길찾기 중 상태로 설정
+        isNavigating = true;
+        Toast.makeText(this, "목적지로 안내를 시작합니다.", Toast.LENGTH_SHORT).show();
+
+        // 취소 버튼 보이기
+        cancelNavigationButton.setVisibility(View.VISIBLE);
+    }
+
+    // 길찾기 취소
+    private void cancelNavigation() {
+        pathFinder.shutdownTTS();  // TTS 종료
+
+        isNavigating = false;  // 길찾기 상태 초기화
+        Toast.makeText(this, "길찾기가 취소되었습니다.", Toast.LENGTH_SHORT).show();
+
+        // 취소 버튼 숨기기
+        cancelNavigationButton.setVisibility(View.GONE);
+    }
+
+    private LatLng getUserCurrentLocation() {
+        if (naverMap == null) {
+            Toast.makeText(this, "지도가 아직 준비되지 않았습니다.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        LocationOverlay locationOverlay = naverMap.getLocationOverlay();
+        return new LatLng(locationOverlay.getPosition().latitude, locationOverlay.getPosition().longitude);
+    }
+
+    private PolylineOverlay getBraillePolyline() {
+        if (brailleBlocks.isEmpty()) {
+            Toast.makeText(this, "점자 블록 경로가 없습니다.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        return brailleBlocks.get(0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // TTS 종료
+        if (pathFinder != null) {
+            pathFinder.shutdownTTS();
+        }
+    }
+
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {
         final String[] parkList = {"여의도 한강 공원", "망원 한강 공원","잠실 한강 공원"};

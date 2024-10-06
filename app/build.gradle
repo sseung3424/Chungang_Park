@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.chungangpark.parknavigator'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.chungangpark.parknavigator"
@@ -27,7 +27,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     ndkVersion '27.1.12297006'
-    buildToolsVersion '34.0.0'
+    buildToolsVersion '35.0.0'
 }
 
 dependencies {
@@ -40,5 +40,6 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
     implementation 'com.naver.maps:map-sdk:3.19.1'
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 }
