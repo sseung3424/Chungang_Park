@@ -29,9 +29,12 @@ public class SectionObstacleManager {
     private final Map<LatLng, Integer> coordinateCases = new HashMap<>();
     // 장애물 좌표 정의
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
-    private final LatLng obstacle2 = new LatLng(37.52680387, 126.93437803);
+    private final LatLng obstacle2 = new LatLng(37.51999042, 127.09851338);
     private final LatLng obstacle_test = new LatLng(
-            37.52001523, 127.09856174);
+            37.51998113, 127.09850195);
+    // 37.52680387, 126.93437803
+    private boolean isUserNearObstacle = true; // 장애물 근처 상태를 추적하는 플래그
+
     // 생성자에서 좌표와 case 번호를 매핑
 
     public SectionObstacleManager(Context context, OutputStream outputStream) {
@@ -177,14 +180,14 @@ public class SectionObstacleManager {
         naverMap.addOnLocationChangeListener(location -> {
             LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
 
-
-            // 4. 장애물 앞에 있을 때 진동 (테스트용)
+            checkUserNearObstacle(userPosition); // 장애물 근처인지 확인
+           /* // 4. 장애물 앞에 있을 때 진동 (테스트용)
             if (isNearObstacle(userPosition)) {
                 Toast.makeText(context, "장애물 앞입니다.", Toast.LENGTH_SHORT).show();
             }
 
             checkUserProximity(userPosition);
-
+*/
 
 
             // 1. 장애물에 근접했는지 확인 (우선순위 1)
@@ -225,41 +228,16 @@ public class SectionObstacleManager {
         return earthRadius * c; // 두 점 사이의 거리 반환 (미터)
     }
 
-    // 사용자와 세 좌표 간의 최소 거리를 계산하고 알림을 보내는 함수
-    private void checkUserProximity(LatLng userPosition) {
-        double minDistance = Double.MAX_VALUE;
+    private void checkUserNearObstacle(LatLng userPosition) {
+        double thresholdDistance = 3.0; // 2m 이내일 때 장애물 근처로 간주
 
-        // 사용자와 각 점자블록 좌표 간의 거리를 계산
-        for (LatLng point : brailleBlockPoints) {
-            double distance = distanceBetween(userPosition, point);
-            if (distance < minDistance) {
-                minDistance = distance; // 최소 거리 업데이트
+        if (distanceBetween(userPosition, obstacle1) < thresholdDistance || distanceBetween(userPosition, obstacle2) < thresholdDistance
+                || distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
+            if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
+                Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
             }
         }
-
-        // 최소 거리가 2m 이내일 때 Toast 신호가 계속 발생하도록 처리
-        if (minDistance <= 4.0) {
-            if (!isUserNearBrailleBlock) { // 처음 2m 이내로 들어올 때
-                isUserNearBrailleBlock = true; // 상태 업데이트
-            }
-            Toast.makeText(context, "점자블록 근처입니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
-        } else {
-            if (isUserNearBrailleBlock) { // 처음 2m 이상으로 벗어났을 때
-                isUserNearBrailleBlock = false; // 상태 업데이트
-            }
-            // 2m 이상일 때도 신호를 계속 발생
-            Toast.makeText(context, "점자블록에서 2m 이상 떨어졌습니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
-        }
     }
-
-    // 장애물에 도달했는지 확인하는 함수
-    private boolean isNearObstacle(LatLng userPosition) {
-        double thresholdDistance = 2.0; // 장애물 근처로 간주할 거리 기준(2m)
-        return (distanceBetween(userPosition, obstacle1) < thresholdDistance) ||
-                // !!!!!!!!여기 나중에 꼭 obstacle_2로 바꿀 것!!!!!!!!!!!!!
-                (distanceBetween(userPosition, obstacle_test) < thresholdDistance);
-    }
-
     // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
     public void sendTestCommandToArduino() {
         try {

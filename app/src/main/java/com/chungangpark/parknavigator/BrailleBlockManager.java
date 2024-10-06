@@ -68,7 +68,7 @@ public class BrailleBlockManager {
         }
 
         // 최소 거리가 2m 이내일 때 Toast 신호가 계속 발생하도록 처리
-        if (minDistance <= 4.0) {
+        if (minDistance <= 2.0) {
             if (!isUserNearBrailleBlock) { // 처음 2m 이내로 들어올 때
                 isUserNearBrailleBlock = true; // 상태 업데이트
             }

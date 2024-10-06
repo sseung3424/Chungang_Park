@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private Animator animator;
+    private SectionObstacleManager sectionObstacleManager;
     private BrailleBlockManager brailleBlockManager;
 
     @Override
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // 점자 블록 매니저 생성 및 점자 블록 추가
-        SectionObstacleManager sectionObstacleManager = new SectionObstacleManager(this);
+        sectionObstacleManager = new SectionObstacleManager(this);
         sectionObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
         // BrailleBlockManager 초기화 및 점자블록 추가
         brailleBlockManager = new BrailleBlockManager(this);
