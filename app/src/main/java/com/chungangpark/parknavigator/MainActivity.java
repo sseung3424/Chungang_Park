@@ -48,14 +48,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private Animator animator;
-    private SectionObstacleManager sectionObstacleManager;
+    private ObstacleManager ObstacleManager;
     private BrailleBlockManager brailleBlockManager;
+    private SectionManager sectionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+// SectionManager 인스턴스 생성
         // 한강 공원 목록 버튼 설정
         Button selectParkButton = findViewById(R.id.select_park_button);
         selectParkButton.setOnClickListener(new View.OnClickListener() {
@@ -118,12 +119,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // 점자 블록 매니저 생성 및 점자 블록 추가
-        sectionObstacleManager = new SectionObstacleManager(this);
-        sectionObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
+        ObstacleManager = new ObstacleManager(this);
+        ObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
         // BrailleBlockManager 초기화 및 점자블록 추가
         brailleBlockManager = new BrailleBlockManager(this);
         brailleBlockManager.addBrailleBlockOnMap(naverMap);  // 지도 준비 완료 후 점자블록 추가
 
+        sectionManager = new SectionManager(this);
+        sectionManager.addSectiononMap(naverMap);
     }
     // 한강 공원 목록 다이얼로그 표시
     private void showParkListDialog() {

@@ -13,73 +13,69 @@ import java.util.HashMap;
 import java.util.Map;
 import com.naver.maps.map.overlay.CircleOverlay;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class SectionObstacleManager {
-    private boolean wasNearObstacle = false;
+public class SectionManager {
+
     private Context context;
-    private final BrailleBlockDetector bbd = new BrailleBlockDetector();
     private final ArduinoVibrationController avc = new ArduinoVibrationController();
     private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
-    private List<LatLng> brailleBlockPoints= new ArrayList<>();;
-    private boolean isUserNearBrailleBlock = false; // 사용자 상태를 추적하는 플래그
+    private boolean isUserNearSection = true; // 장애물 근처 상태를 추적하는 플래그
 
     // 좌표별로 case 번호를 지정하기 위한 Map 정의
-    private final Map<LatLng, Integer> coordinateCases = new HashMap<>();
-    // 장애물 좌표 정의
-    private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
-    private final LatLng obstacle2 = new LatLng(37.51999042, 127.09851338);
-    private final LatLng obstacle_test = new LatLng(
-            37.51998113, 127.09850195);
-    // 37.52680387, 126.93437803
-    private boolean isUserNearObstacle = true; // 장애물 근처 상태를 추적하는 플래그
+    private final Map<Integer, List<LatLng>> coordinateCases = new HashMap<>(); // Map<Integer, List<LatLng>>
+    private final LatLng section1 = new LatLng(37.51997367, 127.09847681);
+    private final LatLng section2 = new LatLng(37.51995139, 127.09843472);
+    private final LatLng section3 = new LatLng(37.51995441, 127.09845953);
+
 
     // 생성자에서 좌표와 case 번호를 매핑
 
-    public SectionObstacleManager(Context context, OutputStream outputStream) {
+    public SectionManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
 
         // case 1
-        coordinateCases.put(new LatLng(37.52749844, 126.93282825), 1);
-        coordinateCases.put(new LatLng(37.52673475, 126.93369419), 1);
-        coordinateCases.put(new LatLng(37.52659294, 126.93330747), 1);
-        coordinateCases.put(new LatLng(37.52655245, 126.93318723), 1);
-        coordinateCases.put(new LatLng(37.52623683, 126.93361226), 1);
-        coordinateCases.put(new LatLng(37.52601374, 126.93390651), 1);
+        List<LatLng> case1Coords = Arrays.asList(
+                new LatLng(37.52749844, 126.93282825),
+                new LatLng(37.52673475, 126.93369419),
+                new LatLng(37.52659294, 126.93330747),
+                new LatLng(37.52655245, 126.93318723),
+                new LatLng(37.52623683, 126.93361226),
+                new LatLng(37.52601374, 126.93390651)
+        );
+        coordinateCases.put(1, case1Coords);
+        // case 2 좌표 그룹화
+        List<LatLng> case2Coords = Arrays.asList(
 
-        // case 2
-        coordinateCases.put(new LatLng(37.52746540, 126.93278579), 2);
-        coordinateCases.put(new LatLng(37.52713827, 126.93239991), 2);
-        coordinateCases.put(new LatLng(37.52677942, 126.93364775), 2);
-        coordinateCases.put(new LatLng(37.52656957, 126.93325711), 2);
-        coordinateCases.put(new LatLng(37.52653469, 126.93323310), 2);
-        coordinateCases.put(new LatLng(37.52621122, 126.93364469), 2);
-        coordinateCases.put(new LatLng(37.52607395, 126.93426738), 2);
+                new LatLng(37.52746540, 126.93278579),
+                new LatLng(37.52713827, 126.93239991),
+                new LatLng(37.52677942, 126.93364775),
+                new LatLng(37.52656957, 126.93325711),
+                new LatLng(37.52653469, 126.93323310),
+                new LatLng(37.52607395, 126.93426738)
+        );
+        coordinateCases.put(2, case2Coords);
+        // case 3 좌표 그룹화
+        List<LatLng> case3Coords = Arrays.asList(
 
-        // case 3
-        coordinateCases.put(new LatLng(37.52746078, 126.93283010), 3);
-        coordinateCases.put(new LatLng(37.52719621, 126.93243238), 3);
-        coordinateCases.put(new LatLng(37.52674941, 126.93364060), 3);
-        coordinateCases.put(new LatLng(37.52657473, 126.93330811), 3);
-        coordinateCases.put(new LatLng(37.52656118, 126.93323845), 3);
-        coordinateCases.put(new LatLng(37.52604918, 126.93425169), 3);
-        coordinateCases.put(new LatLng(37.52601184, 126.93394634), 3);
-        coordinateCases.put(new LatLng(37.52623836, 126.93364102), 3);
-
-        // case 4
-        coordinateCases.put(new LatLng(37.52645537, 126.93398751), 4);
-        coordinateCases.put(new LatLng(37.52644432, 126.93393378), 4);
-        coordinateCases.put(new LatLng(37.52640692, 126.93398781), 4);
-
-        // 장애물 좌표 case 6으로 추가
-        coordinateCases.put(obstacle1, 6);
-        coordinateCases.put(obstacle2, 6);
-
-
+                new LatLng(37.52746078, 126.93283010),
+                new LatLng(37.52719621, 126.93243238),
+                new LatLng(37.52674941, 126.93364060),
+                new LatLng(37.52657473, 126.93330811),
+                new LatLng(37.52656118, 126.93323845),
+                new LatLng(37.52601184, 126.93394634)
+        );
+        coordinateCases.put(3, case3Coords);
+        // case 4 좌표 그룹화
+        List<LatLng> case4Coords = Arrays.asList(
+                new LatLng(37.52645537, 126.93398751),
+                new LatLng(37.52644432, 126.93393378),
+                new LatLng(37.52640692, 126.93398781)
+        );
+        coordinateCases.put(4, case4Coords);
     }
-    public SectionObstacleManager(Context context){this.context = context;}
+    public SectionManager(Context context){this.context = context;}
 
     // 선형 점자블록 추가 함수
     private void addLinearBrailleBlock(NaverMap naverMap, LatLng startPoint, LatLng endPoint) {
@@ -101,18 +97,17 @@ public class SectionObstacleManager {
         polyline.setColor(0xFFFF00A5); // 핑크색 선
         polyline.setMap(naverMap);
     }
-    // 장애물 위치에 1m 반경의 원을 표시하는 함수
-    private void addObstacleCircle(NaverMap naverMap, LatLng obstacle) {
+    // 교차로 위치에 원을 표시하는 함수
+    private void addCrossroadCircle(NaverMap naverMap, LatLng crossroad) {
         CircleOverlay circle = new CircleOverlay();
-        circle.setCenter(obstacle);
-        circle.setRadius(1.0); // 1.5미터 반경
-        circle.setColor(0x40FF0000); // 반투명 빨간색
-        circle.setOutlineColor(0xFFFF0000); // 빨간색 테두리
+        circle.setCenter(crossroad);
+        circle.setRadius(1.0); // 반경 1.5미터
+        circle.setColor(0x4000FF00); // 초록색 반투명 원 (0x40은 투명도)
+        circle.setOutlineColor(0xFF00FF00); // 초록색 테두리
         circle.setOutlineWidth(3); // 테두리 두께
         circle.setMap(naverMap);
     }
-
-    public void addBrailleBlockonMap(@NonNull NaverMap naverMap) {
+    public void addSectiononMap(@NonNull NaverMap naverMap) {
 
         // 선형 점자블록 추가
         addLinearBrailleBlock(naverMap, new LatLng(37.52709831, 126.93245824), new LatLng(37.52713827, 126.93239991));
@@ -169,52 +164,37 @@ public class SectionObstacleManager {
         addDotBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52604725, 126.93428587));
         addDotBrailleBlock(naverMap, new LatLng(37.52607395, 126.93426738), new LatLng(37.52604725, 126.93428587));
 
-        // 장애물 위치에 1m 반경의 원 추가
-        addObstacleCircle(naverMap, obstacle1);
-        addObstacleCircle(naverMap, obstacle2);
-        addObstacleCircle(naverMap, obstacle_test);
+// 교차로 위치에 원을 표시
+        addCrossroadCircle(naverMap, section1);  // 교차로 1
+        addCrossroadCircle(naverMap, section2);  // 교차로 2
+        addCrossroadCircle(naverMap, section3); // 교차로 3
 
         // 화장실 위치
         // 37.52623836, 126.93364102
         // 위치 변경 리스너 추가
         naverMap.addOnLocationChangeListener(location -> {
             LatLng userPosition = new LatLng(location.getLatitude(), location.getLongitude());
-
-            checkUserNearObstacle(userPosition); // 장애물 근처인지 확인
-           /* // 4. 장애물 앞에 있을 때 진동 (테스트용)
-            if (isNearObstacle(userPosition)) {
-                Toast.makeText(context, "장애물 앞입니다.", Toast.LENGTH_SHORT).show();
-            }
-
-            checkUserProximity(userPosition);
-*/
-
-
-            // 1. 장애물에 근접했는지 확인 (우선순위 1)
-            /*boolean nearObstacle = isNearObstacle(userPosition);
-            if (nearObstacle && !wasNearObstacle) {
-                // 처음으로 장애물 근처에 왔을 때 알림 발생
-                handleCase(6);  // case 6: 장애물에 도달했을 때
-                wasNearObstacle = true; // 상태 업데이트: 이제 장애물 근처에 있음
-            } else if (!nearObstacle && wasNearObstacle) {
-                // 장애물에서 벗어났을 때 상태 업데이트
-                wasNearObstacle = false;
-            }*/
-            /*if (isNearObstacle(userPosition)) {
-                handleCase(6);  // case 6: 장애물에 도달했을 때
-            }
-
-            // 2. 점자블록에서 벗어났는지 확인 (우선순위 2)
-            if (!isOnBrailleBlock) {
-                handleCase(5);  // case 5: 점자블록에서 벗어났을 때
-            }*/
-
-           /* // 3. 선형 점자블록에서 점형 점자블록으로 이동했는지 확인 (우선순위 3)
-            if (isOnLinearBlock && !wasOnLinearBlock) {
-                handleCaseBasedOnProximity(userPosition);  // 1m 범위 내에서 가장 가까운 점자블록 처리
-            }*/
+            checkUserNearCrossroad(userPosition); // 교차로 근처 확인
         });
     }
+    // 사용자와 교차로 간의 거리를 확인하고 알림을 보내는 함수
+    private void checkUserNearCrossroad(LatLng userPosition) {
+            double thresholdDistance = 3.0; // 2m 이내일 때 장애물 근처로 간주
+
+            if (distanceBetween(userPosition, section1) < thresholdDistance ){
+                Toast.makeText(context, "교차로1 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+            }
+            if (distanceBetween(userPosition, section2) < thresholdDistance ){
+            Toast.makeText(context, "교차로2 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+            }
+
+            if (distanceBetween(userPosition, section3) < thresholdDistance ){
+            Toast.makeText(context, "교차로3 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+        }
+        }
+
+
+
 
     // 사용자와 점자블록 좌표 간의 거리를 계산하는 함수
     private double distanceBetween(LatLng start, LatLng end) {
@@ -228,16 +208,7 @@ public class SectionObstacleManager {
         return earthRadius * c; // 두 점 사이의 거리 반환 (미터)
     }
 
-    private void checkUserNearObstacle(LatLng userPosition) {
-        double thresholdDistance = 3.0; // 2m 이내일 때 장애물 근처로 간주
 
-        if (distanceBetween(userPosition, obstacle1) < thresholdDistance || distanceBetween(userPosition, obstacle2) < thresholdDistance
-                || distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
-            if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
-                Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
     // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
     public void sendTestCommandToArduino() {
         try {
@@ -254,7 +225,7 @@ public class SectionObstacleManager {
         }
     }
 
-    // case 번호에 따른 동작 처리 함수 // 아두이노로 case 번호 전송
+    /*// case 번호에 따른 동작 처리 함수 // 아두이노로 case 번호 전송
     private void handleCase(int caseNumber) {
         try {
             if (outputStream != null) {
@@ -294,6 +265,6 @@ public class SectionObstacleManager {
             default:
                 break;
         }
-    }
+    }*/
 
 }
