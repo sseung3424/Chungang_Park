@@ -32,8 +32,6 @@
             android:exported="false" />
         <activity android:name=".BluetoothArduinoConnector"
             android:exported="false" />
-        <activity android:name=".BrailleBlockDetector"
-            android:exported="false" />
         <activity android:name=".NavigationManager"
             android:exported="false" />
         <meta-data

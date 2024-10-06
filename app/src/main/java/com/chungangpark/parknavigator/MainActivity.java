@@ -1,7 +1,6 @@
 package com.chungangpark.parknavigator;
 
 // 점형 점자블록 추가
-import com.naver.maps.map.overlay.Marker;
 // 선형 점자 블록 추가
 import com.naver.maps.map.overlay.PolylineOverlay;
 // latlng 클래스 임포트
@@ -21,48 +20,33 @@ import java.util.ArrayList; // ArrayList 추가
 import java.util.List; // List 추가
 import java.util.UUID; // UUID 추가
 
-import java.util.Arrays;
+        import android.widget.Toast; // Toast 추가
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
-import android.graphics.Color;
+        import java.util.ArrayList; // ArrayList 추가
+import java.util.List; // List 추가
 
-import android.os.Bundle;
+        import android.animation.Animator;
+
+        import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
+        import android.view.View;
+        import android.widget.Button;
+
+        import androidx.appcompat.app.AlertDialog;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
+        import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.naver.maps.geometry.LatLng;
-import com.naver.maps.map.CameraUpdate;
-import com.naver.maps.map.CameraUpdateParams;
-import com.naver.maps.map.LocationTrackingMode;
+        import com.naver.maps.map.CameraUpdate;
+        import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.NaverMapOptions;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.UiSettings;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
-import android.graphics.Color;
-
-import com.naver.maps.map.overlay.LocationOverlay;
+        import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -80,12 +64,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     MarkerManager markerManager = new MarkerManager(naverMap);
     private boolean isNavigating = false;  // 길찾기 상태를 추적하는 플래그
     private LinearLayout cancelNavigationButton;
-
+    private Animator animator;
+    private ObstacleManager ObstacleManager;
+    private BrailleBlockManager brailleBlockManager;
+    private SectionManager sectionManager;
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+// SectionManager 인스턴스 생성
         // 한강 공원 목록 버튼 설정
         LinearLayout selectParkButton = findViewById(R.id.btn_select_park);
         selectParkButton.setOnClickListener(new View.OnClickListener() {
@@ -187,8 +175,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // 점자 블록 매니저 생성 및 점자 블록 추가
-        BrailleBlockManager brailleBlockManager = new BrailleBlockManager();
-        brailleBlockManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
+        ObstacleManager = new ObstacleManager(this);
+        ObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
+        // BrailleBlockManager 초기화 및 점자블록 추가
+        brailleBlockManager = new BrailleBlockManager(this);
+        brailleBlockManager.addBrailleBlockOnMap(naverMap);  // 지도 준비 완료 후 점자블록 추가
+
+        sectionManager = new SectionManager(this);
+        sectionManager.addSectiononMap(naverMap);
     }
 
     // 길찾기 선택 다이얼로그 표시
@@ -423,4 +417,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return super.onOptionsItemSelected(item);
     }
+
 }
