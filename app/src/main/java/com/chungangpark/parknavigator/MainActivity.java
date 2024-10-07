@@ -5,6 +5,7 @@ package com.chungangpark.parknavigator;
 import com.naver.maps.map.overlay.PolylineOverlay;
 // latlng 클래스 임포트
 import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.overlay.Marker;
 
 // 블루투스 관련 라이브러리 임포트 확인
 import android.bluetooth.BluetoothAdapter;
