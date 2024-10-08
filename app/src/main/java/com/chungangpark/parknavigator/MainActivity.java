@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button sendSignalButton = findViewById(R.id.send_signal_button);
         // BluetoothAdapter 초기화
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -101,13 +102,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         connectToPairedHC06();
 
 
-        /*// 버튼 클릭 시 신호 전송
+        // 버튼 클릭 시 신호 전송
         sendSignalButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sendDataToArduino('7');  // 7이라는 신호 전송
             }
-        });*/
+        });
 
 
 // SectionManager 인스턴스 생성
@@ -215,13 +216,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ObstacleManager = new ObstacleManager(this);
         ObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
         // BrailleBlockManager 초기화 및 점자블록 추가
-        brailleBlockManager = new BrailleBlockManager(this);
+        brailleBlockManager = new BrailleBlockManager(this, outputStream);
         brailleBlockManager.addBrailleBlockOnMap(naverMap);  // 지도 준비 완료 후 점자블록 추가
 
         sectionManager = new SectionManager(this);
         sectionManager.addSectiononMap(naverMap);
     }
-
+    // 신호를 아두이노로 전송하는 메서드
+    private void sendDataToArduino(int data) {
+        if (outputStream != null) {
+            try {
+                outputStream.write("7".getBytes()); // input 7을 전송하는 예시
+                Toast.makeText(this, "데이터 전송 완료", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "데이터 전송 실패", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
     private void connectToPairedHC06() {
         try {
 

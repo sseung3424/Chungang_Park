@@ -8,14 +8,19 @@ import android.content.Context;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class BrailleBlockManager {
     private Context context;
     private List<LatLng> brailleBlockPoints;
     private boolean isUserNearBrailleBlock = false; // 사용자 상태를 추적하는 플래그
+    private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
 
-    public BrailleBlockManager(Context context) {
+    public BrailleBlockManager(Context context, OutputStream outputStream) {
         this.context = context;
+        this.outputStream = outputStream;
+
         brailleBlockPoints = new ArrayList<>();
 
         // 세 좌표를 점자블록 리스트에 추가
@@ -76,9 +81,24 @@ public class BrailleBlockManager {
         } else {
             if (isUserNearBrailleBlock) { // 처음 2m 이상으로 벗어났을 때
                 isUserNearBrailleBlock = false; // 상태 업데이트
+                sendCommandToArduino(5);  // input 5를 아두이노로 전송
+                Toast.makeText(context, "점자블록에서 벗어났습니다. 아두이노로 5 전송", Toast.LENGTH_SHORT).show();
             }
-            // 2m 이상일 때도 신호를 계속 발생
-            Toast.makeText(context, "점자블록에서 2m 이상 떨어졌습니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
+        }
+    }
+    // 아두이노로 특정 명령어를 전송하는 함수
+    private void sendCommandToArduino(int command) {
+        try {
+            if (outputStream != null) {
+                String commandStr = command + "\n";
+                outputStream.write(commandStr.getBytes());  // 명령어를 아두이노로 전송
+                outputStream.flush();
+            } else {
+                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
         }
     }
 }

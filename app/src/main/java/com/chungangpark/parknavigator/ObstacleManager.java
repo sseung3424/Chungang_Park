@@ -38,42 +38,6 @@ public class ObstacleManager {
         this.context = context;
         this.outputStream = outputStream;
 
-        // case 1
-        coordinateCases.put(new LatLng(37.52749844, 126.93282825), 1);
-        coordinateCases.put(new LatLng(37.52673475, 126.93369419), 1);
-        coordinateCases.put(new LatLng(37.52659294, 126.93330747), 1);
-        coordinateCases.put(new LatLng(37.52655245, 126.93318723), 1);
-        coordinateCases.put(new LatLng(37.52623683, 126.93361226), 1);
-        coordinateCases.put(new LatLng(37.52601374, 126.93390651), 1);
-
-        // case 2
-        coordinateCases.put(new LatLng(37.52746540, 126.93278579), 2);
-        coordinateCases.put(new LatLng(37.52713827, 126.93239991), 2);
-        coordinateCases.put(new LatLng(37.52677942, 126.93364775), 2);
-        coordinateCases.put(new LatLng(37.52656957, 126.93325711), 2);
-        coordinateCases.put(new LatLng(37.52653469, 126.93323310), 2);
-        coordinateCases.put(new LatLng(37.52621122, 126.93364469), 2);
-        coordinateCases.put(new LatLng(37.52607395, 126.93426738), 2);
-
-        // case 3
-        coordinateCases.put(new LatLng(37.52746078, 126.93283010), 3);
-        coordinateCases.put(new LatLng(37.52719621, 126.93243238), 3);
-        coordinateCases.put(new LatLng(37.52674941, 126.93364060), 3);
-        coordinateCases.put(new LatLng(37.52657473, 126.93330811), 3);
-        coordinateCases.put(new LatLng(37.52656118, 126.93323845), 3);
-        coordinateCases.put(new LatLng(37.52604918, 126.93425169), 3);
-        coordinateCases.put(new LatLng(37.52601184, 126.93394634), 3);
-        coordinateCases.put(new LatLng(37.52623836, 126.93364102), 3);
-
-        // case 4
-        coordinateCases.put(new LatLng(37.52645537, 126.93398751), 4);
-        coordinateCases.put(new LatLng(37.52644432, 126.93393378), 4);
-        coordinateCases.put(new LatLng(37.52640692, 126.93398781), 4);
-
-        // 장애물 좌표 case 6으로 추가
-        coordinateCases.put(obstacle1, 6);
-        coordinateCases.put(obstacle2, 6);
-
 
     }
     public ObstacleManager(Context context){this.context = context;}
@@ -194,28 +158,42 @@ public class ObstacleManager {
     }
 
     private void checkUserNearObstacle(LatLng userPosition) {
-        double thresholdDistance = 3.0; // 2m 이내일 때 장애물 근처로 간주
+        double thresholdDistance = 3.0; // 3m 이내일 때 장애물 근처로 간주
 
-        if (distanceBetween(userPosition, obstacle1) < thresholdDistance || distanceBetween(userPosition, obstacle2) < thresholdDistance
-                || distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
-            if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
-                Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+        boolean isNearObstacle = false;
+
+        // 장애물들과의 거리 계산
+        if (distanceBetween(userPosition, obstacle1) < thresholdDistance ||
+                distanceBetween(userPosition, obstacle2) < thresholdDistance ||
+                distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
+
+            isNearObstacle = true;
+        }
+
+        // 장애물이 가까이에 있을 때만 input 6을 전송
+        if (isNearObstacle) {
+            if (!isUserNearObstacle) {  // 처음으로 장애물 근처에 도달했을 때만 전송
+                isUserNearObstacle = true;
+                sendCommandToArduino(6);  // input 6을 아두이노로 전송
+                Toast.makeText(context, "장애물 앞에 있습니다. 아두이노로 6 전송", Toast.LENGTH_SHORT).show();
             }
+        } else {
+            isUserNearObstacle = false; // 장애물이 더 이상 가까이 있지 않음
         }
     }
-    // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
-    public void sendTestCommandToArduino() {
+    // 아두이노로 특정 명령어를 전송하는 함수
+    private void sendCommandToArduino(int command) {
         try {
             if (outputStream != null) {
-                outputStream.write(("7\n").getBytes());  // 명령어 7을 아두이노로 전송
+                String commandStr = command + "\n";
+                outputStream.write(commandStr.getBytes());  // 명령어를 아두이노로 전송
                 outputStream.flush();
-                Toast.makeText(context, "Command 7 sent to Arduino", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
             } else {
-                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
+                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
+            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
         }
     }
 
