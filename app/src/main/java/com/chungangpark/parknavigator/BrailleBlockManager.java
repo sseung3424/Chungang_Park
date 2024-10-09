@@ -74,16 +74,13 @@ public class BrailleBlockManager {
 
         // 최소 거리가 2m 이내일 때 Toast 신호가 계속 발생하도록 처리
         if (minDistance <= 2.0) {
-            if (!isUserNearBrailleBlock) { // 처음 2m 이내로 들어올 때
-                isUserNearBrailleBlock = true; // 상태 업데이트
-            }
+            sendCommandToArduino(7);
             Toast.makeText(context, "점자블록 근처입니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
         } else {
-            if (isUserNearBrailleBlock) { // 처음 2m 이상으로 벗어났을 때
-                isUserNearBrailleBlock = false; // 상태 업데이트
+
                 sendCommandToArduino(5);  // input 5를 아두이노로 전송
                 Toast.makeText(context, "점자블록에서 벗어났습니다. 아두이노로 5 전송", Toast.LENGTH_SHORT).show();
-            }
+
         }
     }
     // 아두이노로 특정 명령어를 전송하는 함수
