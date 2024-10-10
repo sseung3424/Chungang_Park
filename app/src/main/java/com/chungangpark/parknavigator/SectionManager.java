@@ -110,6 +110,26 @@ public class SectionManager {
     public void addSectiononMap(@NonNull NaverMap naverMap) {
 
         // 선형 점자블록 추가
+        addLinearBrailleBlock(naverMap, new LatLng(37.52761704, 126.93297516), new LatLng(37.5284726, 126.93409373));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52847627, 126.93413048), new LatLng(37.52758931, 126.93520385));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52755322, 126.9352127), new LatLng(37.527326, 126.93496173));
+        addLinearBrailleBlock(naverMap, new LatLng(37.5272937, 126.93492551), new LatLng(37.52685604, 126.93443723));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52729597, 126.93496488), new LatLng(37.52706028, 126.935253));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52706028, 126.935253), new LatLng(37.52690819, 126.93550214));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52690819, 126.93550214), new LatLng(37.5266179, 126.93589983));
+        // 3번째 37.52627961 126.93522186
+
+        addLinearBrailleBlock(naverMap, new LatLng(37.52577618, 126.93423173), new LatLng(37.52589178, 126.93445328));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52589178, 126.93445328), new LatLng(37.5262675, 126.93518912));
+        addLinearBrailleBlock(naverMap, new LatLng(37.526604, 126.9359167), new LatLng(37.52627961, 126.93522186));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52589013, 126.93445074), new LatLng(37.52509846, 126.9357385));
+        addLinearBrailleBlock(naverMap, new LatLng(37.526604, 126.9359167), new LatLng(37.52571447, 126.93679827));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52491457, 126.9354831), new LatLng(37.52509757, 126.93573975));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52509898, 126.9357415), new LatLng(37.52526247, 126.9359579));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52526212, 126.93595801), new LatLng(37.52571529, 126.93679664));
+        addLinearBrailleBlock(naverMap, new LatLng(37.5250992, 126.93574015), new LatLng(37.52483355, 126.93604164));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52441175, 126.93600736), new LatLng(37.52510821, 126.93609407));
+
         addLinearBrailleBlock(naverMap, new LatLng(37.52709831, 126.93245824), new LatLng(37.52713827, 126.93239991));
         addLinearBrailleBlock(naverMap, new LatLng(37.52719621, 126.93243238), new LatLng(37.52746540, 126.93278579));
         addLinearBrailleBlock(naverMap, new LatLng(37.52746078, 126.93283010), new LatLng(37.52677942, 126.93364775));
