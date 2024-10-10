@@ -62,7 +62,8 @@ public class MarkerManager {
                 new LatLng(37.53210475, 126.92640052),
                 new LatLng(37.53312605, 126.92299011),
                 new LatLng(37.53429215, 126.91852670),
-                new LatLng(37.53481081, 126.91558614)
+                new LatLng(37.53481081, 126.91558614),
+                new LatLng(37.58494730, 126.88573480)
         );
 
         // information_list
