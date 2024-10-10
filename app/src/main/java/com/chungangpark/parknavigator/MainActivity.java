@@ -6,6 +6,7 @@ import com.naver.maps.map.overlay.PolylineOverlay;
 // latlng 클래스 임포트
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.overlay.Marker;
+import android.os.Build;
 
 // 블루투스 관련 라이브러리 임포트 확인
 import android.bluetooth.BluetoothAdapter;
@@ -49,10 +50,15 @@ import com.naver.maps.map.UiSettings;
 
         import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
+    private static final int PERMISSION_REQUEST_CODE = 1;  // 권한 요청 코드
 
     // 한강 공원의 위치를 정의합니다.
     private static final LatLng YEUIDO_PARK = new LatLng(37.5283169, 126.9328034); // 여의도 한강 공원 좌표
@@ -69,11 +75,42 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ObstacleManager ObstacleManager;
     private BrailleBlockManager brailleBlockManager;
     private SectionManager sectionManager;
-  
+    private static final UUID HC06_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // HC-06 UUID
+    private static final String HC06_DEVICE_NAME = "HC-06"; // HC-06 장치 이름
+
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothSocket bluetoothSocket;
+    private OutputStream outputStream;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button sendSignalButton = findViewById(R.id.send_signal_button);
+        // BluetoothAdapter 초기화
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // BluetoothAdapter가 null인지 확인 (블루투스를 지원하는지 확인)
+        if (bluetoothAdapter == null) {
+            // 이 기기는 블루투스를 지원하지 않습니다.
+            Toast.makeText(this, "This device doesn't support Bluetooth", Toast.LENGTH_SHORT).show();
+            finish(); // 앱 종료 또는 다른 처리
+            return;
+        }
+        // 블루투스 권한 확인 및 요청
+        checkBluetoothPermissions();
+        // 이미 페어링 및 연결된 장치로 소켓 생성
+        connectToPairedHC06();
+
+
+        // 버튼 클릭 시 신호 전송
+        sendSignalButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendDataToArduino('7');  // 7이라는 신호 전송
+            }
+        });
+
+
 // SectionManager 인스턴스 생성
         // 한강 공원 목록 버튼 설정
         LinearLayout selectParkButton = findViewById(R.id.btn_select_park);
@@ -179,13 +216,66 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ObstacleManager = new ObstacleManager(this);
         ObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
         // BrailleBlockManager 초기화 및 점자블록 추가
-        brailleBlockManager = new BrailleBlockManager(this);
+        brailleBlockManager = new BrailleBlockManager(this, outputStream);
         brailleBlockManager.addBrailleBlockOnMap(naverMap);  // 지도 준비 완료 후 점자블록 추가
 
         sectionManager = new SectionManager(this);
         sectionManager.addSectiononMap(naverMap);
     }
+    // 신호를 아두이노로 전송하는 메서드
+    private void sendDataToArduino(int data) {
+        if (outputStream != null) {
+            try {
+                outputStream.write("7".getBytes()); // input 7을 전송하는 예시
+                Toast.makeText(this, "데이터 전송 완료", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "데이터 전송 실패", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private void connectToPairedHC06() {
+        try {
 
+            BluetoothDevice hc06Device = bluetoothAdapter.getRemoteDevice("98:DA:60:0B:B8:F9");  // 예시 MAC 주소
+            bluetoothSocket = hc06Device.createRfcommSocketToServiceRecord(HC06_UUID);
+
+            bluetoothSocket.connect();
+            outputStream = bluetoothSocket.getOutputStream();
+            Toast.makeText(this, "HC-06에 성공적으로 연결되었습니다.", Toast.LENGTH_SHORT).show();
+
+        } catch (SecurityException e) {
+            // 권한 문제가 발생했을 때 처리
+            Toast.makeText(this, "블루투스 권한 오류: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            checkBluetoothPermissions();  // 다시 권한 요청
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "HC-06 연결 실패", Toast.LENGTH_SHORT).show();
+        }
+    }
+    // 블루투스 권한 체크 및 요청
+    private void checkBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // 안드로이드 12 이상에서는 추가 권한 필요
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN},
+                        PERMISSION_REQUEST_CODE);
+            }
+        } else {
+            // 안드로이드 12 미만에서는 BLUETOOTH와 BLUETOOTH_ADMIN 권한만 필요
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN},
+                        PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+    
     // 길찾기 선택 다이얼로그 표시
     private void showFindPathDialog() {
         final String[] options = {"화장실", "안내소", "매점"};
@@ -401,13 +491,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            boolean allGranted = true;
+
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (allGranted) {
+                Toast.makeText(this, "블루투스 권한이 승인되었습니다.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "필수 권한을 승인해야 블루투스를 사용할 수 있습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
         if (locationSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             if (!locationSource.isActivated()) {
                 naverMap.setLocationTrackingMode(LocationTrackingMode.Face);
             }
             return;
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

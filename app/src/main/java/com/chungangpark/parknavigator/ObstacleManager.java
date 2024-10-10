@@ -26,10 +26,13 @@ public class ObstacleManager {
     private final Map<LatLng, Integer> coordinateCases = new HashMap<>();
     // 장애물 좌표 정의
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
-    private final LatLng obstacle2 = new LatLng(37.51999042, 127.09851338);
-    private final LatLng obstacle_test = new LatLng(
-            37.51998113, 127.09850195);
-    // 37.52680387, 126.93437803
+    private final LatLng obstacle2 = new LatLng(37.52758983, 126.93294895);
+    private final LatLng obstacle3 = new LatLng(37.52680175, 126.93437625);
+    private final LatLng obstacle4 = new LatLng(37.52684741, 126.93442565);
+    private final LatLng obstacle5 = new LatLng(37.52628100, 126.93522377);
+    private final LatLng obstacle6 = new LatLng(37.52524093, 126.93592885);
+    private final LatLng obstacle7 = new LatLng(37.52528051, 126.93598924);
+
     private boolean isUserNearObstacle = true; // 장애물 근처 상태를 추적하는 플래그
 
     // 생성자에서 좌표와 case 번호를 매핑
@@ -37,44 +40,6 @@ public class ObstacleManager {
     public ObstacleManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
-
-        // case 1
-        coordinateCases.put(new LatLng(37.52749844, 126.93282825), 1);
-        coordinateCases.put(new LatLng(37.52673475, 126.93369419), 1);
-        coordinateCases.put(new LatLng(37.52659294, 126.93330747), 1);
-        coordinateCases.put(new LatLng(37.52655245, 126.93318723), 1);
-        coordinateCases.put(new LatLng(37.52623683, 126.93361226), 1);
-        coordinateCases.put(new LatLng(37.52601374, 126.93390651), 1);
-
-        // case 2
-        coordinateCases.put(new LatLng(37.52746540, 126.93278579), 2);
-        coordinateCases.put(new LatLng(37.52713827, 126.93239991), 2);
-        coordinateCases.put(new LatLng(37.52677942, 126.93364775), 2);
-        coordinateCases.put(new LatLng(37.52656957, 126.93325711), 2);
-        coordinateCases.put(new LatLng(37.52653469, 126.93323310), 2);
-        coordinateCases.put(new LatLng(37.52621122, 126.93364469), 2);
-        coordinateCases.put(new LatLng(37.52607395, 126.93426738), 2);
-
-        // case 3
-        coordinateCases.put(new LatLng(37.52746078, 126.93283010), 3);
-        coordinateCases.put(new LatLng(37.52719621, 126.93243238), 3);
-        coordinateCases.put(new LatLng(37.52674941, 126.93364060), 3);
-        coordinateCases.put(new LatLng(37.52657473, 126.93330811), 3);
-        coordinateCases.put(new LatLng(37.52656118, 126.93323845), 3);
-        coordinateCases.put(new LatLng(37.52604918, 126.93425169), 3);
-        coordinateCases.put(new LatLng(37.52601184, 126.93394634), 3);
-        coordinateCases.put(new LatLng(37.52623836, 126.93364102), 3);
-
-        // case 4
-        coordinateCases.put(new LatLng(37.52645537, 126.93398751), 4);
-        coordinateCases.put(new LatLng(37.52644432, 126.93393378), 4);
-        coordinateCases.put(new LatLng(37.52640692, 126.93398781), 4);
-
-        // 장애물 좌표 case 6으로 추가
-        coordinateCases.put(obstacle1, 6);
-        coordinateCases.put(obstacle2, 6);
-
-
     }
     public ObstacleManager(Context context){this.context = context;}
 
@@ -169,7 +134,11 @@ public class ObstacleManager {
         // 장애물 위치에 1m 반경의 원 추가
         addObstacleCircle(naverMap, obstacle1);
         addObstacleCircle(naverMap, obstacle2);
-        addObstacleCircle(naverMap, obstacle_test);
+        addObstacleCircle(naverMap, obstacle3);
+        addObstacleCircle(naverMap, obstacle4);
+        addObstacleCircle(naverMap, obstacle5);
+        addObstacleCircle(naverMap, obstacle6);
+        addObstacleCircle(naverMap, obstacle7);
 
         // 화장실 위치
         // 37.52623836, 126.93364102
@@ -194,28 +163,38 @@ public class ObstacleManager {
     }
 
     private void checkUserNearObstacle(LatLng userPosition) {
-        double thresholdDistance = 3.0; // 2m 이내일 때 장애물 근처로 간주
+        double thresholdDistance = 3.0; // 3m 이내일 때 장애물 근처로 간주
+
+        boolean isNearObstacle = false;
+
+        // 장애물들과의 거리 계산
+        if (distanceBetween(userPosition, obstacle1) < thresholdDistance ||
+                distanceBetween(userPosition, obstacle2) < thresholdDistance ||
+                distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
+
+            isNearObstacle = true;
+        }
+
 
         if (distanceBetween(userPosition, obstacle1) < thresholdDistance || distanceBetween(userPosition, obstacle2) < thresholdDistance
-                || distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
+                || distanceBetween(userPosition, obstacle3) < thresholdDistance) {
             if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
                 Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-    // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
-    public void sendTestCommandToArduino() {
+        } 
+    // 아두이노로 특정 명령어를 전송하는 함수
+    private void sendCommandToArduino(int command) {
         try {
             if (outputStream != null) {
-                outputStream.write(("7\n").getBytes());  // 명령어 7을 아두이노로 전송
+                String commandStr = command + "\n";
+                outputStream.write(commandStr.getBytes());  // 명령어를 아두이노로 전송
                 outputStream.flush();
-                Toast.makeText(context, "Command 7 sent to Arduino", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
             } else {
-                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
+                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
+            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
         }
     }
 
