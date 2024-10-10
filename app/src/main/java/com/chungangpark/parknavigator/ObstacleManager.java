@@ -5,25 +5,16 @@ import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.overlay.PolylineOverlay;
 import java.util.Arrays;
-import java.io.IOException;
-import java.io.OutputStream;
+
 import android.content.Context;
 import android.widget.Toast;
-import java.util.HashMap;
-import java.util.Map;
 import com.naver.maps.map.overlay.CircleOverlay;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ObstacleManager {
 
-    private Context context;
-    private final ArduinoVibrationController avc = new ArduinoVibrationController();
-    private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
+    private final Context context;
 
     // 좌표별로 case 번호를 지정하기 위한 Map 정의
-    private final Map<LatLng, Integer> coordinateCases = new HashMap<>();
     // 장애물 좌표 정의
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
     private final LatLng obstacle2 = new LatLng(37.52758983, 126.93294895);
@@ -33,14 +24,8 @@ public class ObstacleManager {
     private final LatLng obstacle6 = new LatLng(37.52524093, 126.93592885);
     private final LatLng obstacle7 = new LatLng(37.52528051, 126.93598924);
 
-    private boolean isUserNearObstacle = true; // 장애물 근처 상태를 추적하는 플래그
-
     // 생성자에서 좌표와 case 번호를 매핑
 
-    public ObstacleManager(Context context, OutputStream outputStream) {
-        this.context = context;
-        this.outputStream = outputStream;
-    }
     public ObstacleManager(Context context){this.context = context;}
 
     // 선형 점자블록 추가 함수
@@ -165,81 +150,16 @@ public class ObstacleManager {
     private void checkUserNearObstacle(LatLng userPosition) {
         double thresholdDistance = 3.0; // 3m 이내일 때 장애물 근처로 간주
 
-        boolean isNearObstacle = false;
-
         // 장애물들과의 거리 계산
-        if (distanceBetween(userPosition, obstacle1) < thresholdDistance ||
-                distanceBetween(userPosition, obstacle2) < thresholdDistance ||
-                distanceBetween(userPosition, obstacle3) < thresholdDistance) {
-
-            isNearObstacle = true;
+        if (!(distanceBetween(userPosition, obstacle1) < thresholdDistance) && !(distanceBetween(userPosition, obstacle2) < thresholdDistance)) {
+            distanceBetween(userPosition, obstacle3);
         }
-
 
         if (distanceBetween(userPosition, obstacle1) < thresholdDistance || distanceBetween(userPosition, obstacle2) < thresholdDistance
                 || distanceBetween(userPosition, obstacle3) < thresholdDistance) {
-            if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
-                Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
-            }
+            // 장애물 근처 상태를 추적하는 플래그
+            // 처음으로 장애물 근처에 도달했을 때
+            Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
         }
     }
-
-    // 아두이노로 특정 명령어를 전송하는 함수
-    private void sendCommandToArduino(int command) {
-        try {
-            if (outputStream != null) {
-                String commandStr = command + "\n";
-                outputStream.write(commandStr.getBytes());  // 명령어를 아두이노로 전송
-                outputStream.flush();
-            } else {
-                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // case 번호에 따른 동작 처리 함수 // 아두이노로 case 번호 전송
-    private void handleCase(int caseNumber) {
-        try {
-            if (outputStream != null) {
-                outputStream.write((caseNumber + "\n").getBytes()); // case 번호를 아두이노로 전송
-                outputStream.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // 디버깅
-        switch (caseNumber) {
-            case 1:
-                avc.sendVibrationSignal();
-                Toast.makeText(context, "Case 1: 아두이노로 1 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 2:
-                avc.sendRepeatedVibrationSignal(2);
-                Toast.makeText(context, "Case 2: 아두이노로 2 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 3:
-                avc.sendRepeatedVibrationSignal(3);
-                Toast.makeText(context, "Case 3: 아두이노로 3 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 4:
-                avc.sendRepeatedVibrationSignal(4);
-                Toast.makeText(context, "Case 4: 아두이노로 4 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 5:
-                avc.sendRepeatedVibrationSignal(5);
-                Toast.makeText(context, "Case 5: 선형 점자블록에서 벗어났습니다", Toast.LENGTH_SHORT).show();
-                break;
-            case 6:
-                avc.sendRepeatedVibrationSignal(6);
-                Toast.makeText(context, "Case 6: 장애물 앞에 있습니다", Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                break;
-        }
-    }
-
 }

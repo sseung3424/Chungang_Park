@@ -13,35 +13,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MarkerManager {
-    private NaverMap naverMap;
-    private List<Marker> markers = new ArrayList<>();
-    private List<Marker> toiletMarkers = new ArrayList<>();
-    private List<Marker> informationMarkers = new ArrayList<>();
-    private List<Marker> storeMarkers = new ArrayList<>();
+    private final NaverMap naverMap;
+    private final List<Marker> markers = new ArrayList<>();
+    private final List<Marker> toiletMarkers = new ArrayList<>();
+    private final List<Marker> informationMarkers = new ArrayList<>();
+    private final List<Marker> storeMarkers = new ArrayList<>();
 
     public MarkerManager(NaverMap naverMap) {
         this.naverMap = naverMap;
-    }
-
-    private void addMarkerList(List<LatLng> places, int resource, int width, int height) {
-        for (LatLng place : places) {
-            Marker marker = new Marker();
-            marker.setPosition(place);
-            marker.setMap(naverMap);
-            marker.setIcon(OverlayImage.fromResource(resource));
-
-            // 마커 크기 조정
-            marker.setWidth(width);   // 너비 설정
-            marker.setHeight(height); // 높이 설정
-
-            // 리스트에 추가
-            markers.add(marker); // 추가된 마커를 리스트에 저장
-        }
-    }
-
-    // 모든 마커를 반환하는 메서드
-    public List<Marker> getAllMarkers() {
-        return markers;
     }
 
     public void addMarkers() {
@@ -66,7 +45,7 @@ public class MarkerManager {
         );
 
         // information_list
-        List<LatLng> information = Arrays.asList(
+        List<LatLng> information = List.of(
                 new LatLng(37.52635436, 126.93357377) // 안내소 위치
         );
 
@@ -85,19 +64,19 @@ public class MarkerManager {
         );
 
         // 마커 추가
-        addMarkerList(toilet, R.drawable.toliet_marker, 150, 150, toiletMarkers);
-        addMarkerList(information, R.drawable.information_marker, 150, 150, informationMarkers);
-        addMarkerList(store, R.drawable.store_marker, 150, 150, storeMarkers);
+        addMarkerList(toilet, R.drawable.toliet_marker, toiletMarkers);
+        addMarkerList(information, R.drawable.information_marker, informationMarkers);
+        addMarkerList(store, R.drawable.store_marker, storeMarkers);
     }
 
-    private void addMarkerList(List<LatLng> places, int resource, int width, int height, List<Marker> markerList) {
+    private void addMarkerList(List<LatLng> places, int resource, List<Marker> markerList) {
         for (LatLng place : places) {
             Marker marker = new Marker();
             marker.setPosition(place);
             marker.setMap(naverMap);
             marker.setIcon(OverlayImage.fromResource(resource));
-            marker.setWidth(width);
-            marker.setHeight(height);
+            marker.setWidth(150);
+            marker.setHeight(150);
             markerList.add(marker);
             markers.add(marker);
         }

@@ -9,21 +9,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import android.content.Context;
 import android.widget.Toast;
-import java.util.HashMap;
-import java.util.Map;
 import com.naver.maps.map.overlay.CircleOverlay;
-
-import java.util.List;
 
 public class SectionManager {
 
-    private Context context;
-    private final ArduinoVibrationController avc = new ArduinoVibrationController();
+    private final Context context;
     private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
-    private boolean isUserNearSection = true; // 장애물 근처 상태를 추적하는 플래그
 
     // 좌표별로 case 번호를 지정하기 위한 Map 정의
-    private final Map<Integer, List<LatLng>> coordinateCases = new HashMap<>(); // Map<Integer, List<LatLng>>
+    // Map<Integer, List<LatLng>>
     private final LatLng section1 = new LatLng(37.51997367, 127.09847681);
     private final LatLng section2 = new LatLng(37.51995139, 127.09843472);
     private final LatLng section3 = new LatLng(37.51995441, 127.09845953);
@@ -31,50 +25,6 @@ public class SectionManager {
 
     // 생성자에서 좌표와 case 번호를 매핑
 
-    public SectionManager(Context context, OutputStream outputStream) {
-        this.context = context;
-        this.outputStream = outputStream;
-
-        // case 1
-        List<LatLng> case1Coords = Arrays.asList(
-                new LatLng(37.52749844, 126.93282825),
-                new LatLng(37.52673475, 126.93369419),
-                new LatLng(37.52659294, 126.93330747),
-                new LatLng(37.52655245, 126.93318723),
-                new LatLng(37.52623683, 126.93361226),
-                new LatLng(37.52601374, 126.93390651)
-        );
-        coordinateCases.put(1, case1Coords);
-        // case 2 좌표 그룹화
-        List<LatLng> case2Coords = Arrays.asList(
-
-                new LatLng(37.52746540, 126.93278579),
-                new LatLng(37.52713827, 126.93239991),
-                new LatLng(37.52677942, 126.93364775),
-                new LatLng(37.52656957, 126.93325711),
-                new LatLng(37.52653469, 126.93323310),
-                new LatLng(37.52607395, 126.93426738)
-        );
-        coordinateCases.put(2, case2Coords);
-        // case 3 좌표 그룹화
-        List<LatLng> case3Coords = Arrays.asList(
-
-                new LatLng(37.52746078, 126.93283010),
-                new LatLng(37.52719621, 126.93243238),
-                new LatLng(37.52674941, 126.93364060),
-                new LatLng(37.52657473, 126.93330811),
-                new LatLng(37.52656118, 126.93323845),
-                new LatLng(37.52601184, 126.93394634)
-        );
-        coordinateCases.put(3, case3Coords);
-        // case 4 좌표 그룹화
-        List<LatLng> case4Coords = Arrays.asList(
-                new LatLng(37.52645537, 126.93398751),
-                new LatLng(37.52644432, 126.93393378),
-                new LatLng(37.52640692, 126.93398781)
-        );
-        coordinateCases.put(4, case4Coords);
-    }
     public SectionManager(Context context){this.context = context;}
 
     // 선형 점자블록 추가 함수
@@ -253,7 +203,7 @@ public class SectionManager {
                 sendCommandToArduino(4);  // 아두이노로 input 4 전송
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("오류: " + e.getMessage());
             Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
         }
     }
@@ -270,11 +220,10 @@ public class SectionManager {
                 Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("오류: " + e.getMessage());
             Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     // 사용자와 점자블록 좌표 간의 거리를 계산하는 함수
     private double distanceBetween(LatLng start, LatLng end) {
@@ -287,64 +236,4 @@ public class SectionManager {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return earthRadius * c; // 두 점 사이의 거리 반환 (미터)
     }
-
-
-    // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
-    public void sendTestCommandToArduino() {
-        try {
-            if (outputStream != null) {
-                outputStream.write(("7\n").getBytes());  // 명령어 7을 아두이노로 전송
-                outputStream.flush();
-                Toast.makeText(context, "Command 7 sent to Arduino", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
-            } else {
-                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
-        }
-    }
-
-    /*// case 번호에 따른 동작 처리 함수 // 아두이노로 case 번호 전송
-    private void handleCase(int caseNumber) {
-        try {
-            if (outputStream != null) {
-                outputStream.write((caseNumber + "\n").getBytes()); // case 번호를 아두이노로 전송
-                outputStream.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // 디버깅
-        switch (caseNumber) {
-            case 1:
-                avc.sendVibrationSignal();
-                Toast.makeText(context, "Case 1: 아두이노로 1 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 2:
-                avc.sendRepeatedVibrationSignal(2);
-                Toast.makeText(context, "Case 2: 아두이노로 2 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 3:
-                avc.sendRepeatedVibrationSignal(3);
-                Toast.makeText(context, "Case 3: 아두이노로 3 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 4:
-                avc.sendRepeatedVibrationSignal(4);
-                Toast.makeText(context, "Case 4: 아두이노로 4 전송", Toast.LENGTH_SHORT).show();
-                break;
-            case 5:
-                avc.sendRepeatedVibrationSignal(5);
-                Toast.makeText(context, "Case 5: 선형 점자블록에서 벗어났습니다", Toast.LENGTH_SHORT).show();
-                break;
-            case 6:
-                avc.sendRepeatedVibrationSignal(6);
-                Toast.makeText(context, "Case 6: 장애물 앞에 있습니다", Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                break;
-        }
-    }*/
-
 }

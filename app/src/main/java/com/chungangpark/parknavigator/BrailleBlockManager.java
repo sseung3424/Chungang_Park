@@ -12,10 +12,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class BrailleBlockManager {
-    private Context context;
-    private List<LatLng> brailleBlockPoints;
-    private boolean isUserNearBrailleBlock = false; // 사용자 상태를 추적하는 플래그
-    private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
+    private final Context context;
+    private final List<LatLng> brailleBlockPoints;
+    private final OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
 
     public BrailleBlockManager(Context context, OutputStream outputStream) {
         this.context = context;
@@ -981,8 +980,6 @@ public class BrailleBlockManager {
         brailleBlockPoints.add(new LatLng(37.52500951, 126.93607206));
         brailleBlockPoints.add(new LatLng(37.52503196, 126.93607655));
         brailleBlockPoints.add(new LatLng(37.52505262, 126.9360797));
-
-
     }
 
     // 지도에 점자블록 좌표 추가하는 함수 (별도의 함수 호출 없이 직접 추가)
@@ -1050,7 +1047,7 @@ public class BrailleBlockManager {
                 Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("오류: " + e.getMessage());
             Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
         }
     }

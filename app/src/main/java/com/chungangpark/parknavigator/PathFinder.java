@@ -2,6 +2,7 @@ package com.chungangpark.parknavigator;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
@@ -12,11 +13,11 @@ import com.naver.maps.map.overlay.PolylineOverlay;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class PathFinder implements TextToSpeech.OnInitListener {
-    private Context context;
-    private NaverMap naverMap;
-    private TextToSpeech textToSpeech;
+    private final NaverMap naverMap;
+    private final TextToSpeech textToSpeech;
     private static final double DESTINATION_THRESHOLD_DISTANCE = 20; // 목적지까지 남은 거리가 20미터 이하일 때 안내
 
     // 생성자
@@ -72,7 +73,7 @@ public class PathFinder implements TextToSpeech.OnInitListener {
 
     // 사용자 위치에서 Polyline을 따라가는 경로 찾기
     public void navigateAlongPolyline(LatLng userLocation, PolylineOverlay polyline, LatLng destination) {
-        List<LatLng> polylinePoints = polyline.getCoords();
+        polyline.getCoords();
         LatLng closestPoint = getClosestPointOnPolyline(userLocation, polyline);
         LatLng nextPoint = getNextPointOnPolyline(userLocation, polyline);
 
@@ -106,7 +107,7 @@ public class PathFinder implements TextToSpeech.OnInitListener {
             speakDirection("다음 점자블록까지의 거리는 약 " + Math.round(distanceToNextBlock) + "미터입니다.");
 
             // Polyline 상의 가장 가까운 지점으로 카메라 이동
-            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(nextPoint).zoomTo(17);
+            CameraUpdate cameraUpdate = CameraUpdate.zoomTo(17);
             naverMap.moveCamera(cameraUpdate);
 
         } else {
@@ -203,7 +204,7 @@ public class PathFinder implements TextToSpeech.OnInitListener {
 
     // 사용자 위치 및 방향을 주기적으로 체크하는 메서드 (예: 1초마다 호출)
     public void startNavigation(LatLng userLocation, PolylineOverlay polyline, LatLng destination) {
-        final Handler handler = new Handler();
+        final Handler handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {

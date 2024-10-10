@@ -1,18 +1,15 @@
 package com.chungangpark.parknavigator;
-
 // 점형 점자블록 추가
 // 선형 점자 블록 추가
 import com.naver.maps.map.overlay.PolylineOverlay;
 // latlng 클래스 임포트
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.overlay.Marker;
-import android.os.Build;
 
 // 블루투스 관련 라이브러리 임포트 확인
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.location.Location;
 import android.widget.LinearLayout;
 import android.widget.Toast; // Toast 추가
@@ -21,34 +18,21 @@ import java.io.IOException;
 import java.util.ArrayList; // ArrayList 추가
 import java.util.List; // List 추가
 import java.util.UUID; // UUID 추가
-
-        import android.widget.Toast; // Toast 추가
-
-        import java.util.ArrayList; // ArrayList 추가
-import java.util.List; // List 추가
-
-        import android.animation.Animator;
-
-        import android.os.Bundle;
+import android.os.Bundle;
 import android.view.MenuItem;
-        import android.view.View;
-        import android.widget.Button;
-
-        import androidx.appcompat.app.AlertDialog;
-
+import android.view.View;
+import android.widget.Button;
+import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
-        import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-
-        import com.naver.maps.map.CameraUpdate;
-        import com.naver.maps.map.LocationTrackingMode;
+import com.naver.maps.map.CameraUpdate;
+import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapFragment;
 import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.NaverMapOptions;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.UiSettings;
-
-        import com.naver.maps.map.overlay.LocationOverlay;
+import com.naver.maps.map.overlay.LocationOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -68,18 +52,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NaverMap naverMap;
     private FusedLocationSource locationSource;
     private PathFinder pathFinder;
-    MarkerManager markerManager = new MarkerManager(naverMap);
+    MarkerManager markerManager = new MarkerManager(null);
     private boolean isNavigating = false;  // 길찾기 상태를 추적하는 플래그
     private LinearLayout cancelNavigationButton;
-    private Animator animator;
-    private ObstacleManager ObstacleManager;
-    private BrailleBlockManager brailleBlockManager;
-    private SectionManager sectionManager;
     private static final UUID HC06_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // HC-06 UUID
-    private static final String HC06_DEVICE_NAME = "HC-06"; // HC-06 장치 이름
 
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothSocket bluetoothSocket;
     private OutputStream outputStream;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,23 +81,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         // 버튼 클릭 시 신호 전송
-        sendSignalButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendDataToArduino('7');  // 7이라는 신호 전송
-            }
+        sendSignalButton.setOnClickListener(v -> {
+            sendDataToArduino();  // 7이라는 신호 전송
         });
 
 
 // SectionManager 인스턴스 생성
         // 한강 공원 목록 버튼 설정
         LinearLayout selectParkButton = findViewById(R.id.btn_select_park);
-        selectParkButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showParkListDialog();
-            }
-        });
+        selectParkButton.setOnClickListener(v -> showParkListDialog());
 
         // '주변 정보 안내' 버튼 설정
         LinearLayout nearbyInfoButton = findViewById(R.id.btn_nearby_info);
@@ -213,23 +183,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // 점자 블록 매니저 생성 및 점자 블록 추가
-        ObstacleManager = new ObstacleManager(this);
-        ObstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
+        com.chungangpark.parknavigator.ObstacleManager obstacleManager = new ObstacleManager(this);
+        obstacleManager.addBrailleBlockonMap(naverMap);  // 점자 블록을 지도에 추가
         // BrailleBlockManager 초기화 및 점자블록 추가
-        brailleBlockManager = new BrailleBlockManager(this, outputStream);
+        BrailleBlockManager brailleBlockManager = new BrailleBlockManager(this, outputStream);
         brailleBlockManager.addBrailleBlockOnMap(naverMap);  // 지도 준비 완료 후 점자블록 추가
 
-        sectionManager = new SectionManager(this);
+        SectionManager sectionManager = new SectionManager(this);
         sectionManager.addSectiononMap(naverMap);
     }
     // 신호를 아두이노로 전송하는 메서드
-    private void sendDataToArduino(int data) {
+    private void sendDataToArduino() {
         if (outputStream != null) {
             try {
                 outputStream.write("7".getBytes()); // input 7을 전송하는 예시
                 Toast.makeText(this, "데이터 전송 완료", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("오류: " + e.getMessage());
                 Toast.makeText(this, "데이터 전송 실패", Toast.LENGTH_SHORT).show();
             }
         }
@@ -238,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         try {
 
             BluetoothDevice hc06Device = bluetoothAdapter.getRemoteDevice("98:DA:60:0B:B8:F9");  // 예시 MAC 주소
-            bluetoothSocket = hc06Device.createRfcommSocketToServiceRecord(HC06_UUID);
+            BluetoothSocket bluetoothSocket = hc06Device.createRfcommSocketToServiceRecord(HC06_UUID);
 
             bluetoothSocket.connect();
             outputStream = bluetoothSocket.getOutputStream();
@@ -249,30 +219,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, "블루투스 권한 오류: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             checkBluetoothPermissions();  // 다시 권한 요청
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("오류: " + e.getMessage());
             Toast.makeText(this, "HC-06 연결 실패", Toast.LENGTH_SHORT).show();
         }
     }
     // 블루투스 권한 체크 및 요청
     private void checkBluetoothPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // 안드로이드 12 이상에서는 추가 권한 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
-                    || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+        // 안드로이드 12 이상에서는 추가 권한 필요
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
 
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN},
-                        PERMISSION_REQUEST_CODE);
-            }
-        } else {
-            // 안드로이드 12 미만에서는 BLUETOOTH와 BLUETOOTH_ADMIN 권한만 필요
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED
-                    || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_ADMIN},
-                        PERMISSION_REQUEST_CODE);
-            }
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN},
+                    PERMISSION_REQUEST_CODE);
         }
     }
     
@@ -288,19 +247,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         return;
                     }
 
-                    LatLng destination = null;
-
-                    switch (which) {
-                        case 0: // 화장실 선택
-                            destination = findNearestLocation(userLocation, markerManager.getToiletMarkers());
-                            break;
-                        case 1: // 안내소 선택
-                            destination = findNearestLocation(userLocation, markerManager.getInformationMarkers());
-                            break;
-                        case 2: // 매점 선택
-                            destination = findNearestLocation(userLocation, markerManager.getStoreMarkers());
-                            break;
-                    }
+                    LatLng destination = switch (which) {
+                        case 0 -> // 화장실 선택
+                                findNearestLocation(userLocation, markerManager.getToiletMarkers());
+                        case 1 -> // 안내소 선택
+                                findNearestLocation(userLocation, markerManager.getInformationMarkers());
+                        case 2 -> // 매점 선택
+                                findNearestLocation(userLocation, markerManager.getStoreMarkers());
+                        default -> null;
+                    };
 
                     if (destination != null) {
                         moveToDestination(destination);
@@ -354,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void moveToDestination(LatLng destination) {
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(destination).zoomTo(17);
+        CameraUpdate cameraUpdate = CameraUpdate.zoomTo(17);
         naverMap.moveCamera(cameraUpdate);
 
         // 사용자 위치 가져오기
@@ -446,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // 공원의 이름에 따라 올바른 LatLng 좌표를 전달하는 메서드
     private void moveToSelectedPark(String parkName) {
-        LatLng parkLocation = null;
+        LatLng parkLocation;
 
         switch (parkName) {
             case "여의도":
@@ -472,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void moveToPark(LatLng parkLocation) {
 
         // 줌 레벨을 12로 설정하여 더 넓게 보기
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(parkLocation).zoomTo(15);
+        CameraUpdate cameraUpdate = CameraUpdate.zoomTo(15);
         naverMap.moveCamera(cameraUpdate);
 
         // 지도 반경을 약 1km로 확장
@@ -513,7 +468,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (!locationSource.isActivated()) {
                 naverMap.setLocationTrackingMode(LocationTrackingMode.Face);
             }
-            return;
         }
     }
 
