@@ -32,7 +32,7 @@ public class ObstacleManager {
     private final LatLng obstacle5 = new LatLng(37.52628100, 126.93522377);
     private final LatLng obstacle6 = new LatLng(37.52524093, 126.93592885);
     private final LatLng obstacle7 = new LatLng(37.52528051, 126.93598924);
-    private final LatLng obstacle8 = new LatLng(37.52506017, 126.93608026);
+    private final LatLng obstacle8 = new LatLng(37.58498274, 126.88564608);
     private final LatLng obstacle9 = new LatLng(37.52624885, 126.9351565);
 
     private boolean isUserNearObstacle = true; // 장애물 근처 상태를 추적하는 플래그
@@ -155,6 +155,17 @@ public class ObstacleManager {
         addLinearBrailleBlock(naverMap, new LatLng(37.52979686, 126.93235946), new LatLng(37.52917219, 126.93325816));
         addLinearBrailleBlock(naverMap, new LatLng(37.52912681, 126.93331917), new LatLng(37.52851631, 126.93408292));
 
+        addLinearBrailleBlock(naverMap, new LatLng(37.58507623, 126.88571436), new LatLng(37.58500977, 126.88566657));
+
+
+
+
+
+
+
+
+
+
         addLinearBrailleBlock(naverMap, new LatLng(37.58494730, 126.88573480), new LatLng(37.58495490, 126.88571960));
 
         // 점형 점자블록 추가
@@ -213,6 +224,8 @@ public class ObstacleManager {
         addDotBrailleBlock(naverMap, new LatLng(37.52450185, 126.9365961), new LatLng(37.52451462, 126.93661622));
         addDotBrailleBlock(naverMap, new LatLng(37.52450185, 126.9365961), new LatLng(37.52447562, 126.93656391));
 
+
+
         // 장애물 위치에 1m 반경의 원 추가
         addObstacleCircle(naverMap, obstacle1);
         addObstacleCircle(naverMap, obstacle2);
@@ -221,7 +234,7 @@ public class ObstacleManager {
         addObstacleCircle(naverMap, obstacle5);
         addObstacleCircle(naverMap, obstacle6);
         addObstacleCircle(naverMap, obstacle7);
-
+        addObstacleCircle(naverMap, obstacle8);
         // 화장실 위치
         // 37.52623836, 126.93364102
         // 위치 변경 리스너 추가

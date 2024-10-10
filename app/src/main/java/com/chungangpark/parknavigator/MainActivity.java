@@ -21,7 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList; // ArrayList 추가
 import java.util.List; // List 추가
 import java.util.UUID; // UUID 추가
-
+import java.util.Locale;
+import android.speech.tts.TextToSpeech;
         import android.widget.Toast; // Toast 추가
 
         import java.util.ArrayList; // ArrayList 추가
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private static final int PERMISSION_REQUEST_CODE = 1;  // 권한 요청 코드
-
+    private TextToSpeech tts;
     // 한강 공원의 위치를 정의합니다.
     private static final LatLng YEUIDO_PARK = new LatLng(37.5283169, 126.9328034); // 여의도 한강 공원 좌표
     private static final LatLng MANGWON_PARK = new LatLng(37.58495050, 126.88574150);
@@ -114,10 +115,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 // SectionManager 인스턴스 생성
         // 한강 공원 목록 버튼 설정
         LinearLayout selectParkButton = findViewById(R.id.btn_select_park);
-        selectParkButton.setOnClickListener(new View.OnClickListener() {
+        selectParkButton.setOnClickListener(v -> showParkListDialog());
+
+        // TTS 초기화
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
-            public void onClick(View v) {
-                showParkListDialog();
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    // 한국어로 TTS 설정
+                    int result = tts.setLanguage(Locale.KOREAN);
+
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Toast.makeText(MainActivity.this, "TTS: 지원되지 않는 언어입니다.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "TTS 초기화 실패", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -181,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull NaverMap naverMap) {
         // 네이버 지도 객체 설정
         this.naverMap = naverMap;
-
+        markerManager=new MarkerManager(naverMap);
         // 지도 UI 설정 (줌 버튼)
         UiSettings uiSettings = naverMap.getUiSettings();
         uiSettings.setZoomControlEnabled(false);
@@ -314,20 +327,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // 클래스에 점자블록 리스트 추가
     public static List<PolylineOverlay> brailleBlocks = new ArrayList<>();
 
-    // 주변 정보 안내 버튼을 눌렀을 때 호출되는 메서드
     private void showNearbyInfo() {
         LatLng userLocation = getUserCurrentLocation(); // 사용자의 현재 위치 가져오기
         if (userLocation != null && markerManager != null) {
             List<String> nearbyLocations = markerManager.getNearbyMarkers(userLocation, 30); // 30m 반경 내 마커들 가져오기
             if (nearbyLocations.isEmpty()) {
+                speakOut("주변 30미터 내에 안내할 장소가 없습니다.");
                 Toast.makeText(this, "주변 30m 내에 안내할 장소가 없습니다.", Toast.LENGTH_SHORT).show();
             } else {
                 for (String location : nearbyLocations) {
-                    Toast.makeText(this, location + "가(이) 30m 내에 있습니다.", Toast.LENGTH_SHORT).show();
+                    String message = location + " 30m 내에 있습니다.";
+
+                    // 동일한 메시지를 사용하여 speakOut과 Toast 호출
+                    speakOut(message); // TTS 음성 안내
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+                    // 추가적으로 각 안내 후 잠깐의 딜레이를 줄 수도 있음 (TTS가 더 명확하게 들리도록)
+                    try {
+                        Thread.sleep(500); // 1초 딜레이 (필요 시 조정 가능)
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        } else {
-            Toast.makeText(this, "현재 위치를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // TTS로 음성 출력
+    private void speakOut(String message) {
+        if (tts != null) {
+            tts.speak(message, TextToSpeech.QUEUE_FLUSH, null, null);  // 음성 안내
         }
     }
 

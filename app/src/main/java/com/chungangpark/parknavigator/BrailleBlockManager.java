@@ -994,6 +994,29 @@ public class BrailleBlockManager {
         brailleBlockPoints.add(new LatLng(37.58495180, 126.88570420));
         brailleBlockPoints.add(new LatLng(37.58495050, 126.88574150));
 
+
+
+
+        brailleBlockPoints.add(new LatLng(37.58507623, 126.88571436));
+                brailleBlockPoints.add(new LatLng(37.58507043, 126.88570929));
+        brailleBlockPoints.add(new LatLng(37.58506493, 126.88570543));
+                brailleBlockPoints.add(new LatLng(37.58506132, 126.88570281));
+        brailleBlockPoints.add(new LatLng(37.58505683, 126.88570028));
+                brailleBlockPoints.add(new LatLng(37.58505216, 126.88569716));
+        brailleBlockPoints.add(new LatLng(37.58505000, 126.88569559));
+                brailleBlockPoints.add(new LatLng(37.58504593, 126.88569344));
+        brailleBlockPoints.add(new LatLng(37.58504346, 126.88569193));
+                brailleBlockPoints.add(new LatLng(37.58504110, 126.88568995));
+        brailleBlockPoints.add(new LatLng(37.58503819, 126.88568819));
+                brailleBlockPoints.add(new LatLng(37.58503376, 126.88568522));
+        brailleBlockPoints.add(new LatLng(37.58503180, 126.88568343));
+                brailleBlockPoints.add(new LatLng(37.58502872, 126.88567915));
+        brailleBlockPoints.add(new LatLng(37.58502551, 126.88567724));
+                brailleBlockPoints.add(new LatLng(37.58501927, 126.88567280));
+        brailleBlockPoints.add(new LatLng(37.58501383, 126.88566880));
+                brailleBlockPoints.add(new LatLng(37.58500977, 126.88566657));
+
+
     }
 
     // 지도에 점자블록 좌표 추가하는 함수 (별도의 함수 호출 없이 직접 추가)
