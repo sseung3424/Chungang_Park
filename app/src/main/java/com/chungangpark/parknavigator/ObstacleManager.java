@@ -101,6 +101,8 @@ public class ObstacleManager {
         addLinearBrailleBlock(naverMap, new LatLng(37.52601184, 126.93394634), new LatLng(37.52605962, 126.93401307));
         addLinearBrailleBlock(naverMap, new LatLng(37.52606486, 126.93406153), new LatLng(37.52605962, 126.93401307));
         addLinearBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52606486, 126.93406153));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52606486, 126.93406153));
+
 
         // 점자 블록을 추가하는 함수 호출
         addLinearBrailleBlock(naverMap, new LatLng(37.52604151, 126.93429185), new LatLng(37.52590086, 126.93444264));
@@ -113,6 +115,47 @@ public class ObstacleManager {
         addLinearBrailleBlock(naverMap, new LatLng(37.52426445, 126.93628285), new LatLng(37.52447562, 126.93656391));
         addLinearBrailleBlock(naverMap, new LatLng(37.52452029, 126.93654201), new LatLng(37.52456973, 126.93641224));
         addLinearBrailleBlock(naverMap, new LatLng(37.52456973, 126.93641224), new LatLng(37.52483102, 126.93604008));
+
+        addLinearBrailleBlock(naverMap, new LatLng(37.52970628, 126.92893986), new LatLng(37.52982255, 126.92921813));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52982255, 126.92921813), new LatLng(37.52988054, 126.92963528));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52988054, 126.92963528), new LatLng(37.52992603, 126.92967059));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52992603, 126.92967059), new LatLng(37.52996378, 126.92951125));
+
+        addLinearBrailleBlock(naverMap, new LatLng(37.52995919, 126.92933566), new LatLng(37.52993163, 126.92909854));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52993163, 126.92909854), new LatLng(37.53000635, 126.92877467));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53006971, 126.92887327), new LatLng(37.53009666, 126.92906566));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53009666, 126.92906566), new LatLng(37.53036672, 126.9299682));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53036672, 126.9299682), new LatLng(37.53035695, 126.93023189));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53035695, 126.93023189), new LatLng(37.53022484, 126.93054601));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53002605, 126.92959132), new LatLng(37.53007834, 126.92977587));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53007834, 126.92977587), new LatLng(37.53008724, 126.93002461));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53008724, 126.93002461), new LatLng(37.53003648, 126.93011342));
+        addLinearBrailleBlock(naverMap, new LatLng(37.5310383, 126.93019147), new LatLng(37.53092901, 126.93043326));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53085821, 126.93058224), new LatLng(37.53055962, 126.93112349));
+        addLinearBrailleBlock(naverMap, new LatLng(37.5308313, 126.9305119), new LatLng(37.53066506, 126.93063718));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53066506, 126.93063718), new LatLng(37.53041431, 126.93088871));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53033926, 126.93174914), new LatLng(37.53022104, 126.9319281));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53017522, 126.93193162), new LatLng(37.53015238, 126.93190579));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53015238, 126.93190579), new LatLng(37.53016645, 126.93192234));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53018569, 126.93198975), new LatLng(37.53014974, 126.93207503));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53014974, 126.93207503), new LatLng(37.52999548, 126.93224066));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52999548, 126.93224066), new LatLng(37.5299238, 126.93244069));
+        addLinearBrailleBlock(naverMap, new LatLng(37.5299238, 126.93244069), new LatLng(37.52989503, 126.93249793));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52989503, 126.93249793), new LatLng(37.52984909, 126.93256066));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52984909, 126.93256066), new LatLng(37.52976892, 126.93263829));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52976892, 126.93263829), new LatLng(37.5297182, 126.93266677));
+        addLinearBrailleBlock(naverMap, new LatLng(37.5297182, 126.93266677), new LatLng(37.52964525, 126.93276415));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52964525, 126.93276415), new LatLng(37.52952463, 126.93304594));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52952463, 126.93304594), new LatLng(37.52947353, 126.93310569));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52947353, 126.93310569), new LatLng(37.52934838, 126.93319514));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52934838, 126.93319514), new LatLng(37.52921033, 126.93327319));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52921033, 126.93327319), new LatLng(37.52918223, 126.93328131));
+        addLinearBrailleBlock(naverMap, new LatLng(37.53010115, 126.93191484), new LatLng(37.52994823, 126.93208164));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52994823, 126.93208164), new LatLng(37.52979686, 126.93235946));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52979686, 126.93235946), new LatLng(37.52917219, 126.93325816));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52912681, 126.93331917), new LatLng(37.52851631, 126.93408292));
+
+        addLinearBrailleBlock(naverMap, new LatLng(37.58494730, 126.88573480), new LatLng(37.58495490, 126.88571960));
 
         // 점형 점자블록 추가
         addDotBrailleBlock(naverMap, new LatLng(37.52746540, 126.93278579), new LatLng(37.52748075, 126.93280613));
