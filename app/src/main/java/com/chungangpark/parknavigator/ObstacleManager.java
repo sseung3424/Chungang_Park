@@ -170,7 +170,7 @@ public class ObstacleManager {
         // 장애물들과의 거리 계산
         if (distanceBetween(userPosition, obstacle1) < thresholdDistance ||
                 distanceBetween(userPosition, obstacle2) < thresholdDistance ||
-                distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
+                distanceBetween(userPosition, obstacle3) < thresholdDistance) {
 
             isNearObstacle = true;
         }
@@ -181,7 +181,9 @@ public class ObstacleManager {
             if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
                 Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
             }
-        } 
+        }
+    }
+
     // 아두이노로 특정 명령어를 전송하는 함수
     private void sendCommandToArduino(int command) {
         try {
