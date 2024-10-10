@@ -26,10 +26,13 @@ public class ObstacleManager {
     private final Map<LatLng, Integer> coordinateCases = new HashMap<>();
     // 장애물 좌표 정의
     private final LatLng obstacle1 = new LatLng(37.52754974, 126.93289687);
-    private final LatLng obstacle2 = new LatLng(37.51999042, 127.09851338);
-    private final LatLng obstacle_test = new LatLng(
-            37.51998113, 127.09850195);
-    // 37.52680387, 126.93437803
+    private final LatLng obstacle2 = new LatLng(37.52758983, 126.93294895);
+    private final LatLng obstacle3 = new LatLng(37.52680175, 126.93437625);
+    private final LatLng obstacle4 = new LatLng(37.52684741, 126.93442565);
+    private final LatLng obstacle5 = new LatLng(37.52628100, 126.93522377);
+    private final LatLng obstacle6 = new LatLng(37.52524093, 126.93592885);
+    private final LatLng obstacle7 = new LatLng(37.52528051, 126.93598924);
+
     private boolean isUserNearObstacle = true; // 장애물 근처 상태를 추적하는 플래그
 
     // 생성자에서 좌표와 case 번호를 매핑
@@ -37,8 +40,6 @@ public class ObstacleManager {
     public ObstacleManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
-
-
     }
     public ObstacleManager(Context context){this.context = context;}
 
@@ -133,7 +134,11 @@ public class ObstacleManager {
         // 장애물 위치에 1m 반경의 원 추가
         addObstacleCircle(naverMap, obstacle1);
         addObstacleCircle(naverMap, obstacle2);
-        addObstacleCircle(naverMap, obstacle_test);
+        addObstacleCircle(naverMap, obstacle3);
+        addObstacleCircle(naverMap, obstacle4);
+        addObstacleCircle(naverMap, obstacle5);
+        addObstacleCircle(naverMap, obstacle6);
+        addObstacleCircle(naverMap, obstacle7);
 
         // 화장실 위치
         // 37.52623836, 126.93364102
@@ -170,17 +175,13 @@ public class ObstacleManager {
             isNearObstacle = true;
         }
 
-        // 장애물이 가까이에 있을 때만 input 6을 전송
-        if (isNearObstacle) {
-            if (!isUserNearObstacle) {  // 처음으로 장애물 근처에 도달했을 때만 전송
-                isUserNearObstacle = true;
-                sendCommandToArduino(6);  // input 6을 아두이노로 전송
-                Toast.makeText(context, "장애물 앞에 있습니다. 아두이노로 6 전송", Toast.LENGTH_SHORT).show();
+
+        if (distanceBetween(userPosition, obstacle1) < thresholdDistance || distanceBetween(userPosition, obstacle2) < thresholdDistance
+                || distanceBetween(userPosition, obstacle3) < thresholdDistance) {
+            if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
+                Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            isUserNearObstacle = false; // 장애물이 더 이상 가까이 있지 않음
-        }
-    }
+        } 
     // 아두이노로 특정 명령어를 전송하는 함수
     private void sendCommandToArduino(int command) {
         try {
