@@ -637,10 +637,7 @@ public class BrailleBlockManager {
         brailleBlockPoints.add(new LatLng(37.52624765, 126.93515403));
         brailleBlockPoints.add(new LatLng(37.52625084, 126.93515894));
         brailleBlockPoints.add(new LatLng(37.52625828, 126.93517057));
-        brailleBlockPoints.add(new LatLng(37.52628082, 126.93521643));
-        brailleBlockPoints.add(new LatLng(37.52628337, 126.93522977));
-        brailleBlockPoints.add(new LatLng(37.52628775, 126.93523484));
-        brailleBlockPoints.add(new LatLng(37.52628994, 126.93524266));
+
         brailleBlockPoints.add(new LatLng(37.5262925, 126.93525233));
         brailleBlockPoints.add(new LatLng(37.52629542, 126.93525693));
         brailleBlockPoints.add(new LatLng(37.5263009, 126.93526614));
@@ -729,6 +726,16 @@ public class BrailleBlockManager {
         brailleBlockPoints.add(new LatLng(37.52550763, 126.93507598));
         brailleBlockPoints.add(new LatLng(37.52549298, 126.93511068));
         brailleBlockPoints.add(new LatLng(37.5254794, 126.93514718));
+        brailleBlockPoints.add(new LatLng(37.52544356, 126.93523428));
+        brailleBlockPoints.add(new LatLng(37.52545877, 126.93518784));
+        brailleBlockPoints.add(new LatLng(37.52547459, 126.93515456));
+        brailleBlockPoints.add(new LatLng(37.52548858, 126.93512380));
+        brailleBlockPoints.add(new LatLng(37.52550051, 126.93509266));
+        brailleBlockPoints.add(new LatLng(37.52542637, 126.93526824));
+        brailleBlockPoints.add(new LatLng(37.52541974, 126.93527637));
+        brailleBlockPoints.add(new LatLng(37.52540643, 126.93529862));
+        brailleBlockPoints.add(new LatLng(37.52540067, 126.93531409));
+
         brailleBlockPoints.add(new LatLng(37.52546761, 126.93517466));
         brailleBlockPoints.add(new LatLng(37.52543866, 126.9352382));
         brailleBlockPoints.add(new LatLng(37.52541543, 126.93528822));
@@ -871,16 +878,7 @@ public class BrailleBlockManager {
         brailleBlockPoints.add(new LatLng(37.52521434, 126.93589231));
         brailleBlockPoints.add(new LatLng(37.52522037, 126.9359017));
         brailleBlockPoints.add(new LatLng(37.52522923, 126.93591198));
-        brailleBlockPoints.add(new LatLng(37.52523455, 126.93592092));
-        brailleBlockPoints.add(new LatLng(37.52523916, 126.93592673));
-        brailleBlockPoints.add(new LatLng(37.52524483, 126.93593567));
-        brailleBlockPoints.add(new LatLng(37.52525121, 126.93594372));
-        brailleBlockPoints.add(new LatLng(37.52525724, 126.93594998));
-        brailleBlockPoints.add(new LatLng(37.52526256, 126.93595445));
-        brailleBlockPoints.add(new LatLng(37.52526212, 126.93595801));
-        brailleBlockPoints.add(new LatLng(37.52527134, 126.93597233));
-        brailleBlockPoints.add(new LatLng(37.52527882, 126.93598488));
-        brailleBlockPoints.add(new LatLng(37.52528698, 126.93600007));
+
         brailleBlockPoints.add(new LatLng(37.52529371, 126.9360117));
         brailleBlockPoints.add(new LatLng(37.52530081, 126.93602958));
         brailleBlockPoints.add(new LatLng(37.52530967, 126.93604612));
@@ -978,10 +976,7 @@ public class BrailleBlockManager {
         brailleBlockPoints.add(new LatLng(37.52500951, 126.93607206));
         brailleBlockPoints.add(new LatLng(37.52503196, 126.93607655));
         brailleBlockPoints.add(new LatLng(37.52505262, 126.9360797));
-        brailleBlockPoints.add(new LatLng(37.52506936, 126.93608194));
-        brailleBlockPoints.add(new LatLng(37.52508539, 126.93608644));
-        brailleBlockPoints.add(new LatLng(37.5250975, 126.93609048));
-        brailleBlockPoints.add(new LatLng(37.52510821, 126.93609407));
+
 
     }
 

@@ -119,16 +119,7 @@ public class SectionManager {
         addLinearBrailleBlock(naverMap, new LatLng(37.52690819, 126.93550214), new LatLng(37.5266179, 126.93589983));
         // 3번째 37.52627961 126.93522186
 
-        addLinearBrailleBlock(naverMap, new LatLng(37.52577618, 126.93423173), new LatLng(37.52589178, 126.93445328));
-        addLinearBrailleBlock(naverMap, new LatLng(37.52589178, 126.93445328), new LatLng(37.5262675, 126.93518912));
-        addLinearBrailleBlock(naverMap, new LatLng(37.526604, 126.9359167), new LatLng(37.52627961, 126.93522186));
-        addLinearBrailleBlock(naverMap, new LatLng(37.52589013, 126.93445074), new LatLng(37.52509846, 126.9357385));
-        addLinearBrailleBlock(naverMap, new LatLng(37.526604, 126.9359167), new LatLng(37.52571447, 126.93679827));
-        addLinearBrailleBlock(naverMap, new LatLng(37.52491457, 126.9354831), new LatLng(37.52509757, 126.93573975));
-        addLinearBrailleBlock(naverMap, new LatLng(37.52509898, 126.9357415), new LatLng(37.52526247, 126.9359579));
-        addLinearBrailleBlock(naverMap, new LatLng(37.52526212, 126.93595801), new LatLng(37.52571529, 126.93679664));
-        addLinearBrailleBlock(naverMap, new LatLng(37.5250992, 126.93574015), new LatLng(37.52483355, 126.93604164));
-        addLinearBrailleBlock(naverMap, new LatLng(37.52441175, 126.93600736), new LatLng(37.52510821, 126.93609407));
+
 
         addLinearBrailleBlock(naverMap, new LatLng(37.52709831, 126.93245824), new LatLng(37.52713827, 126.93239991));
         addLinearBrailleBlock(naverMap, new LatLng(37.52719621, 126.93243238), new LatLng(37.52746540, 126.93278579));
@@ -183,6 +174,30 @@ public class SectionManager {
         addDotBrailleBlock(naverMap, new LatLng(37.52601184, 126.93394634), new LatLng(37.52599541, 126.93392535));
         addDotBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52604725, 126.93428587));
         addDotBrailleBlock(naverMap, new LatLng(37.52607395, 126.93426738), new LatLng(37.52604725, 126.93428587));
+        addDotBrailleBlock(naverMap, new LatLng(37.52729786, 126.93493135), new LatLng(37.52731135, 126.93494621));
+        addDotBrailleBlock(naverMap, new LatLng(37.52729458, 126.93496738), new LatLng(37.52731135, 126.93494621));
+        addDotBrailleBlock(naverMap, new LatLng(37.52732584, 126.93496498), new LatLng(37.52731135, 126.93494621));
+        addDotBrailleBlock(naverMap, new LatLng(37.52849987, 126.93410294), new LatLng(37.52848916, 126.93411321));
+        addDotBrailleBlock(naverMap, new LatLng(37.52847649, 126.93413114), new LatLng(37.52848916, 126.93411321));
+        addDotBrailleBlock(naverMap, new LatLng(37.52847506, 126.93409469), new LatLng(37.52848916, 126.93411321));
+        addDotBrailleBlock(naverMap, new LatLng(37.52661475, 126.93590371), new LatLng(37.52660461, 126.93591532));
+        addDotBrailleBlock(naverMap, new LatLng(37.52659595, 126.93589714), new LatLng(37.52660461, 126.93591532));
+        addDotBrailleBlock(naverMap, new LatLng(37.52659093, 126.93593217), new LatLng(37.52660461, 126.93591532));
+        addDotBrailleBlock(naverMap, new LatLng(37.52572536, 126.93678766), new LatLng(37.52571565, 126.93679634));
+        addDotBrailleBlock(naverMap, new LatLng(37.52570651, 126.9367804), new LatLng(37.52571565, 126.93679634));
+        addDotBrailleBlock(naverMap, new LatLng(37.52570503, 126.93680913), new LatLng(37.52571565, 126.93679634));
+        addDotBrailleBlock(naverMap, new LatLng(37.52590126, 126.93443914), new LatLng(37.52589073, 126.93445243));
+        addDotBrailleBlock(naverMap, new LatLng(37.52590007, 126.93446997), new LatLng(37.52589073, 126.93445243));
+        addDotBrailleBlock(naverMap, new LatLng(37.52588259, 126.93443692), new LatLng(37.52589073, 126.93445243));
+        addDotBrailleBlock(naverMap, new LatLng(37.52587941, 126.93446311), new LatLng(37.52589073, 126.93445243));
+        addDotBrailleBlock(naverMap, new LatLng(37.52511082, 126.93572597), new LatLng(37.52509768, 126.93574103));
+        addDotBrailleBlock(naverMap, new LatLng(37.52511098, 126.93575451), new LatLng(37.52509768, 126.93574103));
+        addDotBrailleBlock(naverMap, new LatLng(37.5250877, 126.93572553), new LatLng(37.52509768, 126.93574103));
+        addDotBrailleBlock(naverMap, new LatLng(37.52508567, 126.93575332), new LatLng(37.52509768, 126.93574103));
+        addDotBrailleBlock(naverMap, new LatLng(37.52484514, 126.93602598), new LatLng(37.52482996, 126.93604098));
+        addDotBrailleBlock(naverMap, new LatLng(37.52485035, 126.93604327), new LatLng(37.52482996, 126.93604098));
+        addDotBrailleBlock(naverMap, new LatLng(37.52481095, 126.93604136), new LatLng(37.52482996, 126.93604098));
+        addDotBrailleBlock(naverMap, new LatLng(37.52481718, 126.9360582), new LatLng(37.52482996, 126.93604098));
 
 // 교차로 위치에 원을 표시
         addCrossroadCircle(naverMap, section1);  // 교차로 1
