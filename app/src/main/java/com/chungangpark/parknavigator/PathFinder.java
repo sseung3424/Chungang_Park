@@ -171,14 +171,10 @@ public class PathFinder implements TextToSpeech.OnInitListener {
 
     // 이동해야 할 방향에 대한 메시지 생성
     private String getDirectionMessage(double direction) {
-        if (direction >= 0 && direction < 45) {
+        if (direction >= 0 && direction < 90) {
             return "직진하세요.";
-        } else if (direction >= 45 && direction < 135) {
-            return "오른쪽으로 이동하세요.";
-        } else if (direction >= 135 && direction < 225) {
+        } else if (direction >= 90 && direction < 270) {
             return "뒤로 돌아가세요.";
-        } else if (direction >= 225 && direction < 315) {
-            return "왼쪽으로 이동하세요.";
         } else {
             return "직진하세요.";
         }

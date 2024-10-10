@@ -23,7 +23,7 @@ public class MarkerManager {
         this.naverMap = naverMap;
     }
 
-    private void addMarkerList(List<LatLng> places, int resource, int width, int height) {
+    private void addMarkerList(List<LatLng> places, String type,int resource, int width, int height, List<Marker> markerList) {
         for (LatLng place : places) {
             Marker marker = new Marker();
             marker.setPosition(place);
@@ -33,6 +33,8 @@ public class MarkerManager {
             // 마커 크기 조정
             marker.setWidth(width);   // 너비 설정
             marker.setHeight(height); // 높이 설정
+            marker.setTag(type); // 마커에 태그로 시설 종류 저장 (예: "화장실", "안내소", "편의점")
+            markerList.add(marker);
 
             // 리스트에 추가
             markers.add(marker); // 추가된 마커를 리스트에 저장
@@ -63,7 +65,7 @@ public class MarkerManager {
                 new LatLng(37.53312605, 126.92299011),
                 new LatLng(37.53429215, 126.91852670),
                 new LatLng(37.53481081, 126.91558614),
-                new LatLng(37.58494730, 126.88573480)
+                new LatLng(37.58494080, 126.88566400)
         );
 
         // information_list
@@ -82,13 +84,15 @@ public class MarkerManager {
                 new LatLng(37.53125275, 126.92867288) , // 이마트 24
                 new LatLng(37.53084445, 126.92775391) , // 씨스페이스
                 new LatLng(37.53125275, 126.92867288) , // 이마트 24
-                new LatLng(37.53324449, 126.92329270)  // 이마트 24
+                new LatLng(37.53324449, 126.92329270),  // 이마트 24
+                new LatLng(37.58495200, 126.88571380)  // 이마트 24
+
         );
 
         // 마커 추가
-        addMarkerList(toilet, R.drawable.toliet_marker, 150, 150, toiletMarkers);
-        addMarkerList(information, R.drawable.information_marker, 150, 150, informationMarkers);
-        addMarkerList(store, R.drawable.store_marker, 150, 150, storeMarkers);
+        addMarkerList(toilet, "화장실", R.drawable.toliet_marker, 150, 150, toiletMarkers);
+        addMarkerList(information, "안내소", R.drawable.information_marker, 150, 150, informationMarkers);
+        addMarkerList(store, "편의점", R.drawable.store_marker, 150, 150, storeMarkers);
     }
 
     private void addMarkerList(List<LatLng> places, int resource, int width, int height, List<Marker> markerList) {
@@ -112,10 +116,10 @@ public class MarkerManager {
         for (Marker marker : markers) {
             double distance = getDistance(userLocation, marker.getPosition());
             if (distance <= radiusMeters) {
-                nearbyMarkers.add("위치: " + marker.getPosition().latitude + ", " + marker.getPosition().longitude);
+                String markerType = (String) marker.getTag(); // 마커의 시설 종류를 태그에서 가져옴
+                nearbyMarkers.add(markerType); // 시설 종류 반환
             }
         }
-
         return nearbyMarkers;
     }
 
