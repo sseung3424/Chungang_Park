@@ -40,7 +40,6 @@ public class ObstacleManager {
     public ObstacleManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
-
     }
     public ObstacleManager(Context context){this.context = context;}
 
@@ -164,28 +163,38 @@ public class ObstacleManager {
     }
 
     private void checkUserNearObstacle(LatLng userPosition) {
-        double thresholdDistance = 3.0; // 2m 이내일 때 장애물 근처로 간주
+        double thresholdDistance = 3.0; // 3m 이내일 때 장애물 근처로 간주
+
+        boolean isNearObstacle = false;
+
+        // 장애물들과의 거리 계산
+        if (distanceBetween(userPosition, obstacle1) < thresholdDistance ||
+                distanceBetween(userPosition, obstacle2) < thresholdDistance ||
+                distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
+
+            isNearObstacle = true;
+        }
+
 
         if (distanceBetween(userPosition, obstacle1) < thresholdDistance || distanceBetween(userPosition, obstacle2) < thresholdDistance
                 || distanceBetween(userPosition, obstacle3) < thresholdDistance) {
             if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
                 Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-    // 아두이노로 테스트 명령어를 전송하는 함수 (7번 명령어 전송)
-    public void sendTestCommandToArduino() {
+        } 
+    // 아두이노로 특정 명령어를 전송하는 함수
+    private void sendCommandToArduino(int command) {
         try {
             if (outputStream != null) {
-                outputStream.write(("7\n").getBytes());  // 명령어 7을 아두이노로 전송
+                String commandStr = command + "\n";
+                outputStream.write(commandStr.getBytes());  // 명령어를 아두이노로 전송
                 outputStream.flush();
-                Toast.makeText(context, "Command 7 sent to Arduino", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
             } else {
-                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();  // 디버깅용 메시지
+                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
+            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
         }
     }
 

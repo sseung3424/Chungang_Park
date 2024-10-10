@@ -132,6 +132,17 @@
         android:text="취소"
         android:textSize="14sp"
         android:textColor="#000000" />
-</LinearLayout>
 
+</LinearLayout>
+    <!-- 신호 전송 버튼 -->
+    <Button
+        android:id="@+id/send_signal_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="신호 전송"
+        android:layout_margin="16dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@id/btn_select_park"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -27,7 +27,7 @@ public class SectionManager {
     private final LatLng section1 = new LatLng(37.51997367, 127.09847681);
     private final LatLng section2 = new LatLng(37.51995139, 127.09843472);
     private final LatLng section3 = new LatLng(37.51995441, 127.09845953);
-
+    private final LatLng section4 = new LatLng(37.52645537, 126.93398751);
 
     // 생성자에서 좌표와 case 번호를 매핑
 
@@ -222,6 +222,7 @@ public class SectionManager {
         addCrossroadCircle(naverMap, section1);  // 교차로 1
         addCrossroadCircle(naverMap, section2);  // 교차로 2
         addCrossroadCircle(naverMap, section3); // 교차로 3
+        addCrossroadCircle(naverMap, section4); // 교차로 4
 
         // 화장실 위치
         // 37.52623836, 126.93364102
@@ -231,23 +232,48 @@ public class SectionManager {
             checkUserNearCrossroad(userPosition); // 교차로 근처 확인
         });
     }
-    // 사용자와 교차로 간의 거리를 확인하고 알림을 보내는 함수
     private void checkUserNearCrossroad(LatLng userPosition) {
-            double thresholdDistance = 3.0; // 2m 이내일 때 장애물 근처로 간주
+        double thresholdDistance = 3.0; // 3m 이내일 때 교차로 근처로 간주
 
-            if (distanceBetween(userPosition, section1) < thresholdDistance ){
+        try {
+            if (distanceBetween(userPosition, section1) < thresholdDistance) {
                 Toast.makeText(context, "교차로1 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+                sendCommandToArduino(1);  // 아두이노로 input 1 전송
             }
-            if (distanceBetween(userPosition, section2) < thresholdDistance ){
-            Toast.makeText(context, "교차로2 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+            else if (distanceBetween(userPosition, section2) < thresholdDistance) {
+                Toast.makeText(context, "교차로2 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+                sendCommandToArduino(2);  // 아두이노로 input 2 전송
             }
-
-            if (distanceBetween(userPosition, section3) < thresholdDistance ){
-            Toast.makeText(context, "교차로3 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+            else if (distanceBetween(userPosition, section3) < thresholdDistance) {
+                Toast.makeText(context, "교차로3 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+                sendCommandToArduino(3);  // 아두이노로 input 3 전송
+            }
+            else if (distanceBetween(userPosition, section4) < thresholdDistance) {
+                Toast.makeText(context, "교차로4 앞에 있습니다.", Toast.LENGTH_SHORT).show();
+                sendCommandToArduino(4);  // 아두이노로 input 4 전송
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();  // 오류 처리
         }
+    }
+
+    // 아두이노로 명령어를 전송하는 함수
+    private void sendCommandToArduino(int command) {
+        try {
+            if (outputStream != null) {
+                String commandStr = command + "\n";
+                outputStream.write(commandStr.getBytes());  // 명령어를 아두이노로 전송
+                outputStream.flush();
+                Toast.makeText(context, "Command " + command + " sent to Arduino", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "OutputStream is null", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Failed to send command", Toast.LENGTH_SHORT).show();
         }
-
-
+    }
 
 
     // 사용자와 점자블록 좌표 간의 거리를 계산하는 함수
