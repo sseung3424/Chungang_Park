@@ -10,16 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
 import java.io.OutputStream;
+import android.os.Handler;
+import android.os.Looper;
 
 public class BrailleBlockManager {
     private Context context;
     private List<LatLng> brailleBlockPoints;
     private boolean isUserNearBrailleBlock = false; // 사용자 상태를 추적하는 플래그
     private OutputStream outputStream; // 아두이노로 데이터를 전송할 OutputStream
-
+    private Handler handler;
+    private boolean canSendCommand = true; // 전송 가능 여부 플래그
+    private static final long COMMAND_DELAY = 4000; // 전송 간격 (2초)
     public BrailleBlockManager(Context context, OutputStream outputStream) {
         this.context = context;
         this.outputStream = outputStream;
+        this.handler = new Handler(Looper.getMainLooper());
 
         brailleBlockPoints = new ArrayList<>();
 
@@ -982,6 +987,12 @@ public class BrailleBlockManager {
         brailleBlockPoints.add(new LatLng(37.52503196, 126.93607655));
         brailleBlockPoints.add(new LatLng(37.52505262, 126.9360797));
 
+        brailleBlockPoints.add(new LatLng(37.58496400, 126.88572030));
+        brailleBlockPoints.add(new LatLng(37.58496150, 126.88570840));
+        brailleBlockPoints.add(new LatLng(37.58496300, 126.88572120));
+        brailleBlockPoints.add(new LatLng(37.58495780, 126.88571520));
+        brailleBlockPoints.add(new LatLng(37.58495180, 126.88570420));
+        brailleBlockPoints.add(new LatLng(37.58495050, 126.88574150));
 
     }
 
@@ -1004,6 +1015,11 @@ public class BrailleBlockManager {
         });
     }
 
+    // 일정 시간 동안 명령어 전송을 차단하는 함수
+    private void startCommandDelay() {
+        canSendCommand = false;
+        handler.postDelayed(() -> canSendCommand = true, COMMAND_DELAY);
+    }
     // 사용자와 점자블록 좌표 간의 거리를 계산하는 함수
     private double distanceBetween(LatLng start, LatLng end) {
         double earthRadius = 6371000; // 지구 반지름 (미터)
@@ -1032,11 +1048,12 @@ public class BrailleBlockManager {
         if (minDistance <= 2.0) {
             sendCommandToArduino(7);
             Toast.makeText(context, "점자블록 근처입니다.", Toast.LENGTH_SHORT).show(); // 계속 신호 발생
+            startCommandDelay();
         } else {
 
-                sendCommandToArduino(5);  // input 5를 아두이노로 전송
-                Toast.makeText(context, "점자블록에서 벗어났습니다. 아두이노로 5 전송", Toast.LENGTH_SHORT).show();
-
+            sendCommandToArduino(5);  // input 5를 아두이노로 전송
+            Toast.makeText(context, "점자블록에서 벗어났습니다.", Toast.LENGTH_SHORT).show();
+            startCommandDelay();
         }
     }
     // 아두이노로 특정 명령어를 전송하는 함수

@@ -218,6 +218,7 @@ public class SectionManager {
         addDotBrailleBlock(naverMap, new LatLng(37.52481095, 126.93604136), new LatLng(37.52482996, 126.93604098));
         addDotBrailleBlock(naverMap, new LatLng(37.52481718, 126.9360582), new LatLng(37.52482996, 126.93604098));
 
+
 // 교차로 위치에 원을 표시
         addCrossroadCircle(naverMap, section1);  // 교차로 1
         addCrossroadCircle(naverMap, section2);  // 교차로 2

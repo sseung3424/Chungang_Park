@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // 한강 공원의 위치를 정의합니다.
     private static final LatLng YEUIDO_PARK = new LatLng(37.5283169, 126.9328034); // 여의도 한강 공원 좌표
-    private static final LatLng MANGWON_PARK = new LatLng(37.5580, 126.9027);
+    private static final LatLng MANGWON_PARK = new LatLng(37.58495050, 126.88574150);
     private static final LatLng JAMSIL_PARK = new LatLng(37.5100, 127.1000); // 잠실 한강 공원 좌표
 
     private NaverMap naverMap;
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         sendSignalButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendDataToArduino('7');  // 7이라는 신호 전송
+                sendDataToArduino('5');  // 7이라는 신호 전송
             }
         });
 

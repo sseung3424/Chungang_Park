@@ -32,6 +32,8 @@ public class ObstacleManager {
     private final LatLng obstacle5 = new LatLng(37.52628100, 126.93522377);
     private final LatLng obstacle6 = new LatLng(37.52524093, 126.93592885);
     private final LatLng obstacle7 = new LatLng(37.52528051, 126.93598924);
+    private final LatLng obstacle8 = new LatLng(37.52506017, 126.93608026);
+    private final LatLng obstacle9 = new LatLng(37.52624885, 126.9351565);
 
     private boolean isUserNearObstacle = true; // 장애물 근처 상태를 추적하는 플래그
 
@@ -100,6 +102,18 @@ public class ObstacleManager {
         addLinearBrailleBlock(naverMap, new LatLng(37.52606486, 126.93406153), new LatLng(37.52605962, 126.93401307));
         addLinearBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52606486, 126.93406153));
 
+        // 점자 블록을 추가하는 함수 호출
+        addLinearBrailleBlock(naverMap, new LatLng(37.52604151, 126.93429185), new LatLng(37.52590086, 126.93444264));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52759299, 126.93519875), new LatLng(37.52757111, 126.93522409));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52757111, 126.93522409), new LatLng(37.52754944, 126.93520996));
+        addLinearBrailleBlock(naverMap, new LatLng(37.525793, 126.93419373), new LatLng(37.525793, 126.93419373));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52575046, 126.93425274), new LatLng(37.52484877, 126.93543505));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52480729, 126.93549137), new LatLng(37.52442853, 126.93597018));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52438775, 126.93603009), new LatLng(37.52426552, 126.93621893));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52426445, 126.93628285), new LatLng(37.52447562, 126.93656391));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52452029, 126.93654201), new LatLng(37.52456973, 126.93641224));
+        addLinearBrailleBlock(naverMap, new LatLng(37.52456973, 126.93641224), new LatLng(37.52483102, 126.93604008));
+
         // 점형 점자블록 추가
         addDotBrailleBlock(naverMap, new LatLng(37.52746540, 126.93278579), new LatLng(37.52748075, 126.93280613));
         addDotBrailleBlock(naverMap, new LatLng(37.52746078, 126.93283010), new LatLng(37.52748075, 126.93280613));
@@ -130,6 +144,31 @@ public class ObstacleManager {
         addDotBrailleBlock(naverMap, new LatLng(37.52601184, 126.93394634), new LatLng(37.52599541, 126.93392535));
         addDotBrailleBlock(naverMap, new LatLng(37.52604918, 126.93425169), new LatLng(37.52604725, 126.93428587));
         addDotBrailleBlock(naverMap, new LatLng(37.52607395, 126.93426738), new LatLng(37.52604725, 126.93428587));
+
+        addDotBrailleBlock(naverMap, new LatLng(37.52599421, 126.93392372), new LatLng(37.5260169, 126.93390002));
+        addDotBrailleBlock(naverMap, new LatLng(37.52599421, 126.93392372), new LatLng(37.52601974, 126.93395501));
+        addDotBrailleBlock(naverMap, new LatLng(37.52599421, 126.93392372), new LatLng(37.52597613, 126.93394964));
+
+        addDotBrailleBlock(naverMap, new LatLng(37.52577137, 126.93422547), new LatLng(37.525793, 126.93419373));
+        addDotBrailleBlock(naverMap, new LatLng(37.52577137, 126.93422547), new LatLng(37.52578981, 126.93425453));
+        addDotBrailleBlock(naverMap, new LatLng(37.52577137, 126.93422547), new LatLng(37.52575046, 126.93425274));
+
+        addDotBrailleBlock(naverMap, new LatLng(37.52482892, 126.93546366), new LatLng(37.52484877, 126.93543505));
+        addDotBrailleBlock(naverMap, new LatLng(37.52482892, 126.93546366), new LatLng(37.52486118, 126.93547215));
+        addDotBrailleBlock(naverMap, new LatLng(37.52482892, 126.93546366), new LatLng(37.52480729, 126.93549137));
+
+        addDotBrailleBlock(naverMap, new LatLng(37.52440654, 126.93600147), new LatLng(37.52442853, 126.93597018));
+        addDotBrailleBlock(naverMap, new LatLng(37.52440654, 126.93600147), new LatLng(37.52443562, 126.93602472));
+        addDotBrailleBlock(naverMap, new LatLng(37.52440654, 126.93600147), new LatLng(37.52438775, 126.93603009));
+
+        addDotBrailleBlock(naverMap, new LatLng(37.52423999, 126.93625514), new LatLng(37.52426552, 126.93621893));
+        addDotBrailleBlock(naverMap, new LatLng(37.52423999, 126.93625514), new LatLng(37.52426445, 126.93628285));
+        addDotBrailleBlock(naverMap, new LatLng(37.52423999, 126.93625514), new LatLng(37.52420808, 126.9362985));
+
+        addDotBrailleBlock(naverMap, new LatLng(37.52450185, 126.9365961), new LatLng(37.52452029, 126.93654201));
+        addDotBrailleBlock(naverMap, new LatLng(37.52450185, 126.9365961), new LatLng(37.52446108, 126.93661935));
+        addDotBrailleBlock(naverMap, new LatLng(37.52450185, 126.9365961), new LatLng(37.52451462, 126.93661622));
+        addDotBrailleBlock(naverMap, new LatLng(37.52450185, 126.9365961), new LatLng(37.52447562, 126.93656391));
 
         // 장애물 위치에 1m 반경의 원 추가
         addObstacleCircle(naverMap, obstacle1);
@@ -170,7 +209,7 @@ public class ObstacleManager {
         // 장애물들과의 거리 계산
         if (distanceBetween(userPosition, obstacle1) < thresholdDistance ||
                 distanceBetween(userPosition, obstacle2) < thresholdDistance ||
-                distanceBetween(userPosition, obstacle_test) < thresholdDistance) {
+                distanceBetween(userPosition, obstacle3) < thresholdDistance) {
 
             isNearObstacle = true;
         }
@@ -181,7 +220,8 @@ public class ObstacleManager {
             if (isUserNearObstacle) { // 처음으로 장애물 근처에 도달했을 때
                 Toast.makeText(context, "장애물 앞에 있습니다.", Toast.LENGTH_SHORT).show();
             }
-        } 
+        }
+    }
     // 아두이노로 특정 명령어를 전송하는 함수
     private void sendCommandToArduino(int command) {
         try {
